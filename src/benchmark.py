@@ -6,6 +6,7 @@ import pyinterp
 from scipy import signal
 from itertools import chain
 import hvplot.xarray
+import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -167,6 +168,11 @@ class Benchmark(object):
             ),
         )
         to_write.to_netcdf(fname)
+        
+        if 'filter' in kwargs:
+            self.filter_name = kwargs['filter']
+        else :
+            self.filter_name = 'None'
         
     def display_stats(self, fname):
         
@@ -496,6 +502,9 @@ class Benchmark(object):
         
             return resolution_scale#, flag_multiple_crossing
         
+        self.wavelength_snr1_filter = compute_snr1(self.psd_err/self.psd_ssh_true, self.freq)
+        self.wavelength_snr1_nofilter = compute_snr1(self.psd_err_karin/self.psd_ssh_true, self.freq)
+        
         to_write = xr.Dataset(
             data_vars=dict(
                 psd_ssh_true=(["wavenumber"], self.psd_ssh_true),
@@ -510,8 +519,8 @@ class Benchmark(object):
             ),
             coords=dict(
                 wavenumber=(["wavenumber"], self.freq),
-                wavelength_snr1_filter=(["wavelength_snr1"], [compute_snr1(self.psd_err/self.psd_ssh_true, self.freq)]),
-                wavelength_snr1_nofilter=(["wavelength_snr1"], [compute_snr1(self.psd_err_karin/self.psd_ssh_true, self.freq)]),
+                wavelength_snr1_filter=(["wavelength_snr1"], [self.wavelength_snr1_filter]),
+                wavelength_snr1_nofilter=(["wavelength_snr1"], [self.wavelength_snr1_nofilter]),
             ),
             attrs=dict(
                 description=kwargs['description'] if 'description' in kwargs else 'PSD analysis',
@@ -547,6 +556,39 @@ class Benchmark(object):
     
     
         return (fig1 + fig2 + fig3).cols(3)
+    
+    
+    def summary(self, notebook_name):
+        
+        wavelength_snr1_filter = self.wavelength_snr1_filter
+        wavelength_snr1_nofilter = self.wavelength_snr1_nofilter
+        
+        rmse_residual_noise_global = self.rmse_residual_noise_global
+        rmse_residual_noise_coastal = self.rmse_residual_noise_coastal
+        rmse_residual_noise_offshore_lowvar = self.rmse_residual_noise_offshore_lowvar
+        rmse_residual_noise_offshore_highvar = self.rmse_residual_noise_offshore_highvar
+                
+        data = [[self.filter_name, 
+                 rmse_residual_noise_global, 
+                 rmse_residual_noise_coastal, 
+                 rmse_residual_noise_offshore_lowvar, 
+                 rmse_residual_noise_offshore_highvar,
+                 np.round(wavelength_snr1_nofilter, 1),
+                 np.round(wavelength_snr1_filter, 1),
+                 notebook_name]]
+        
+        Leaderboard = pd.DataFrame(data, 
+                           columns=['Method', 
+                                    "µ(RMSE global) [m]", 
+                                    "µ(RMSE coastal) [m]", 
+                                    "µ(RMSE offshore lowvar) [m]", 
+                                    "µ(RMSE offshore highvar) [m]", 
+                                    'λ(SNR1 before filtering) [km]', 
+                                    'λ(SNR1 after filtering) [km]',  
+                                    'Reference'])
+        print("Summary of the leaderboard metrics:")
+        print(Leaderboard.to_markdown())
+            
     
     
 
