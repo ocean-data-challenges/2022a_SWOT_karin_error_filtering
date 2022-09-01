@@ -12,9 +12,9 @@ brotli-bin=1.0.9=h166bdaf_7
 brotlipy=0.7.0=py39hb9d737c_1004
 bzip2=1.0.8=h7f98852_4
 c-ares=1.18.1=h7f98852_0
-ca-certificates=2022.07.19=h06a4308_0
+ca-certificates=2022.6.15=ha878542_0
 cartopy=0.20.3=py39hed214b2_2
-certifi=2022.6.15=py39h06a4308_0
+certifi=2022.6.15=pyhd8ed1ab_1
 cffi=1.15.1=py39h74dc2b5_0
 cftime=1.6.1=py39hd257fcd_0
 charset-normalizer=2.1.1=pyhd8ed1ab_0
@@ -119,7 +119,7 @@ numba=0.55.2=py39h66db6d7_0
 numcodecs=0.10.2=py39h5a03fae_0
 numpy=1.22.4=py39hc58783e_0
 openjpeg=2.5.0=h7d73246_1
-openssl=1.1.1q=h7f8727e_0
+openssl=1.1.1q=h166bdaf_0
 packaging=21.3=pyhd8ed1ab_0
 pandas=1.4.4=py39h1832856_0
 panel=0.13.1=pyhd8ed1ab_0
@@ -166,6 +166,7 @@ six=1.16.0=pyh6c4a22f_0
 sortedcontainers=2.4.0=pyhd8ed1ab_0
 sqlite=3.39.2=h5082296_0
 stack_data=0.2.0=pyhd3eb1b0_0
+tabulate=0.8.10=pyhd8ed1ab_0
 tblib=1.7.0=pyhd8ed1ab_0
 tk=8.6.12=h1ccaba5_0
 toolz=0.12.0=pyhd8ed1ab_0
