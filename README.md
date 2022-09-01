@@ -3,7 +3,7 @@ A challenge on the SWOT Karin instrumental error filtering organised by Datlas, 
 
 IMAGE
 
-Intercompare uncorrelated instrument error filtering methods
+Intercompare uncorrelated instrument error filtering methods 
 
 Copernicus Marine Service Evolution 21036-COP-INNO SCI
 
