@@ -26,11 +26,12 @@ SWOT product and requirement
 
 **The goal of the Filtering SWOT data challenge is to provide a platform to investigate the most appropriate filtering methods to reduce the uncorrelated instrumental (KaRIn) noise from the SWOT data.** 
 
-In practice, the data challenge is in the form of an Observing System Simulation Experiment (OSSE) considering a realistic ocean model simulation (GLORYS) as the true ocean state. The SWOT simulator (Gauthier et al., 2016) was then used to create realistic SWOT data with and without instrumental noise. 
+In practice, the data challenge is in the form of an Observing System Simulation Experiment (OSSE) considering a realistic ocean model simulation (eNATL60) as the true ocean state. The SWOT simulator (Gauthier et al., 2016) was then used to create realistic SWOT data with and without instrumental noise. 
 
 ## Observations
+ 
 
-Simuated SWOT track
+The data challenge is in the form of an Observing System Simulation Experiment (OSSE) considering a realistic ocean model simulation, the NEMO high resolution North Atlantic simulation **eNATL60**, as the true ocean state. The SWOT simulator (Gauthier et al., 2016) was then used to create realistic SWOT data with and without instrumental noise. 
 
 The noisy SWOT data to filter (inputs) and their equivalent noise-free SWOT data for evaluation (targets) are hosted and available for download on the MEOM opendap server: see **Download the data** section below.
 In no way the targets that are available during the evaluation period should be used in the filtering process (including for tuning the filter).   
