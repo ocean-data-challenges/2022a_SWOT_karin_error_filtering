@@ -40,3 +40,14 @@ Simuated SWOT track
 
 
 ## Download the data
+
+
+## Acknowledgement
+
+This data challenge was created as part of the Service Evolution CMEMS project: SLICING, in collaboration with Datlas, CLS, IMT-Atlantique.
+
+The structure of this data challenge was to a large extent inspired by the [`ocean-data-challenges`](https://github.com/ocean-data-challenges) created for the BOOST-SWOT ANR project.
+
+The experiment proposed and the illustrative figures contained in this data challenge are based on an internal study conducted at CLS.
+
+
