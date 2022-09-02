@@ -1,7 +1,9 @@
 # SWOT karin error filtering 2022a
 A challenge on the SWOT Karin instrumental error filtering organised by Datlas, IMT Altlantique and CLS.
 
-IMAGE
+
+<img src="figures/DC_SWOT_karin_error_filtering-banner.png" />
+
 
 Intercompare uncorrelated instrument error filtering methods 
 
