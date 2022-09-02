@@ -23,6 +23,11 @@ The SWOT errors are expected to generate noises that are both correlated on the 
 
 SWOT product and requirement
 
+
+**The goal of the Filtering SWOT data challenge is to provide a platform to investigate the most appropriate filtering methods to reduce the uncorrelated instrumental (KaRIn) noise from the SWOT data.** 
+
+In practice, the data challenge is in the form of an Observing System Simulation Experiment (OSSE) considering a realistic ocean model simulation (GLORYS) as the true ocean state. The SWOT simulator (Gauthier et al., 2016) was then used to create realistic SWOT data with and without instrumental noise. 
+
 ## Observations
 
 Simuated SWOT track
