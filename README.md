@@ -27,6 +27,13 @@ SWOT product and requirement
 
 Simuated SWOT track
 
+The noisy SWOT data to filter (inputs) and their equivalent noise-free SWOT data for evaluation (targets) are hosted and available for download on the MEOM opendap server: see **Download the data** section below.
+In no way the targets that are available during the evaluation period should be used in the filtering process (including for tuning the filter).   
+
+
+
+<img src="figures/DC_SWOT_Filtering-data_illustration.png" />
+
 
 ## Data sequence and use
 
