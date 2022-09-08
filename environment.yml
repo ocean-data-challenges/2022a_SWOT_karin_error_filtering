@@ -1,0 +1,15 @@
+name: env-dc-swot-filtering
+channels:
+  - pyviz
+dependencies:
+  - python=3.10
+  - numpy=1.21.*
+  - scipy
+  - hvplot
+  - conda-forge::pyinterp
+  - holoviews
+  - geoviews
+  - cartopy
+  - tabulate
+  - datashader
+  - netcdf4
