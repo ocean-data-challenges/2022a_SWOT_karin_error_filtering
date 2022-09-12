@@ -5,9 +5,10 @@ import sys
 import matplotlib.pylab as plt
 sys.path.append('..')
 from src.filters_bidim import median_filter, lanczos_filter, loess_filter, gaussian_filter, boxcar_filter, lee_filter
-
+ 
 
 class SwotTrack(object):
+ 
 
     def __init__(self, fname=None, dset=None):
         """ constructeur """
@@ -20,9 +21,9 @@ class SwotTrack(object):
         else:
             raise Exception('either fname or dset should be provided')
 
-        self._nadir_mask = None
-        
-        
+        self._nadir_mask = None 
+         
+          
     
     def compute_geos_current(self, invar, outvar):
         
@@ -81,6 +82,41 @@ class SwotTrack(object):
         #plt.xlim(2400, 3000)
         
         plt.show()
+        
+      
+    
+    def display_demo(self, var_name='karin',msk=None, vmin=None, vmax=None):
+        
+        ds = self._dset
+        ds = ds.isel(num_lines=slice(2400, 3000), drop=True)
+        ds['num_lines'] = 2*(ds['num_lines']-ds['num_lines'][0])
+        ds['num_pixels'] = 2*ds['num_pixels']
+        
+        if msk is None:
+            msk = ds['ssh_'+var_name]/ds['ssh_'+var_name]
+        if vmin is None:
+            vmin = np.nanpercentile(ds['ssh_'+var_name], 5)
+        if vmax is None:
+            vmax = np.nanpercentile(ds['ssh_'+var_name], 95)
+        
+        plt.figure(figsize=(22, 3))
+        plt.subplot(121)
+        (ds['ssh_'+var_name]*msk).T.plot(vmin=vmin, vmax=vmax, cmap='Spectral_r', cbar_kwargs={'label': '[m]'})
+        plt.title('SSH '+var_name, fontweight='bold')
+        plt.xlabel('[km]')
+        plt.ylabel('[km]')
+        #plt.xlim(2400, 3000)
+        plt.subplot(122)
+        (ds['geos_current_'+var_name]*msk).T.plot(vmin=0, vmax=0.5, cmap='Blues_r', cbar_kwargs={'label': '[m.s$^{-1}$]'})
+        plt.title('Geos. current from SSH '+var_name, fontweight='bold')
+        plt.xlabel('[km]')
+        plt.ylabel('[km]')
+        #plt.xlim(2400, 3000)
+        
+        plt.show()
+        
+        return msk,vmin, vmax
+        
         
     
     def display_demo_input(self):
@@ -183,6 +219,54 @@ class SwotTrack(object):
         
         plt.show()
         
+    
+        
+        
+    def plot_track(self,filtered_var_name,swottrack_input):
+        
+        ds = self._dset
+        ds0 = swottrack_input._dset 
+        
+        vmin = np.nanpercentile(ds0['ssh_karin'], 5)
+        vmax = np.nanpercentile(ds0['ssh_karin'], 95)
+         
+        
+        fig = plt.figure(figsize=(18,12))
+        ax1 = fig.add_subplot(2,3,1)        
+        plt.scatter(ds0.longitude,ds0.latitude,c=ds0['ssh_true'].values, vmin= vmin, vmax= vmax, cmap='Spectral_r')
+        plt.colorbar()
+        ax1.title.set_text('True ssh')
+                   
+        ax2 = fig.add_subplot(2,3,2)        
+        plt.scatter(ds0.longitude,ds0.latitude,c=ds0['ssh_karin'].values, vmin= vmin, vmax= vmax, cmap='Spectral_r')
+        plt.colorbar()
+        ax2.title.set_text('Noisy ssh karin')
+                   
+        ax3 = fig.add_subplot(2,3,3)        
+        plt.scatter(ds.longitude,ds.latitude,c=ds[filtered_var_name].values, vmin= vmin, vmax= vmax, cmap='Spectral_r')
+        plt.colorbar()
+        ax3.title.set_text('Filtered ssh karin')
+         
+    
+        delta0 = ds0['ssh_karin'] - ds0['ssh_true']
+        delta = ds[filtered_var_name] - ds0['ssh_true']
+        
+        vmin_delta = np.nanpercentile(delta.values, 5)
+        vmax_delta = np.nanpercentile(delta.values, 95)
+                   
+        ax5 = fig.add_subplot(2,3,5)        
+        plt.scatter(ds0.longitude,ds0.latitude,c=delta0, vmin= vmin_delta, vmax= vmax_delta, cmap='bwr')
+        plt.colorbar()
+        ax5.title.set_text('Karin noise')
+                   
+        ax6 = fig.add_subplot(2,3,6)        
+        plt.scatter(ds.longitude,ds.latitude,c=delta, vmin= vmin_delta, vmax= vmax_delta, cmap='bwr')
+        plt.colorbar()
+        ax6.title.set_text('Filtered ssh karin - True ssh karin')
+                   
+                   
+        plt.show()
+        
         
     def display_track(self):
         
@@ -200,6 +284,16 @@ class SwotTrack(object):
         fig_delta_ssh_filtered_ssh_true = delta.hvplot.quadmesh(x='longitude', y='latitude', clim=(-np.abs(vmin_delta), np.abs(vmin_delta)), cmap='bwr', rasterize=True, title='Filtered ssh karin - True ssh karin')
     
         return (fig_ssh_true + fig_noisy_ssh + fig_filtered_ssh + fig_delta_ssh_filtered_ssh_true).cols(2)
+
+        
+    def apply_your_own_filter(self,thefilter,invar,outvar,**kwargs):
+        """ apply median filter, enrich dataset inplace """
+        self.__check_var_exist(invar)
+        if outvar in self._dset.data_vars:
+            self._dset = self._dset.drop(outvar)
+        ssha = self.dset[invar].values
+        ssha_f = thefilter(ssha, **kwargs)
+        self.__enrich_dataset(outvar, ssha_f)
 
         
     def apply_median_filter(self, invar, size, outvar):
@@ -286,6 +380,8 @@ class SwotTrack(object):
         """ add a new variable to the dataset """
         self._dset = self._dset.assign(dict(temp=(('num_lines', 'num_pixels'), array)))
         self._dset = self._dset.rename_vars({'temp': varname})
+         
+          
 
     def fill_nadir_gap(self, invar):
         """ fill nadir gap """
