@@ -91,8 +91,16 @@ and can be downloaded using:
 
 ## Quickstart
 :computer: _**How to get started ?**_
+
+Create the data challenge conda environment, named env-dc-swot-filtering, using:
+
 ```
-conda create --name <env_name> --file requirements.txt
+conda env create -f environment.yml
+```
+and then 
+
+```
+conda activate env-dc-swot-filtering
 ```
 
 
