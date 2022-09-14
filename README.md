@@ -46,6 +46,41 @@ In no way the targets that are available during the evaluation period should be 
 
 ## Data format
 
+The data are hosted on the opendap: [ocean-data-challenges/2022a_SWOT_karin_error_filtering/](https://ige-meom-opendap.univ-grenoble-alpes.fr/thredds/catalog/meomopendap/extract/ocean-data-challenges/2022a_SWOT_karin_error_filtering/catalog.html). 
+
+### Data challenge data
+
+The data needed for the DC are presented with the following directory structure:
+
+```
+.
+|-- dc_inputs
+|   |-- input_ssh_karin_013_*.nc
+
+```
+
+
+To start out download the dataset from the temporary data server, use:
+
+```shell
+!wget https://ige-meom-opendap.univ-grenoble-alpes.fr/thredds/fileServer/meomopendap/extract/ocean-data-challenges/2022a_SWOT_karin_error_filtering/dc_inputs.tar.gz
+
+```
+and then uncompress the files using `tar -xvf <file>.tar.gz`. You may also use `ftp`, `rsync` or `curl`to donwload the data.
+**The inputs are stored in the variable *ssh_karin* and the targets are stored in the variable *ssh_true.**
+
+### Extra training data
+
+If necessary a dataset for *training* purposes is available and structured as follows:
+
+```
+. 
+|--  
+``` 
+
+and can be downloaded using:
+
+
 ## Leaderboard
 |    | Method   |   µ(RMSE global) [m] |   µ(RMSE coastal) [m] |   µ(RMSE offshore lowvar) [m] |   µ(RMSE offshore highvar) [m] |   λ(SNR1 before filtering) [km] |   λ(SNR1 after filtering) [km] | Reference                  |
 |---:|:---------|---------------------:|----------------------:|------------------------------:|-------------------------------:|--------------------------------:|-------------------------------:|:---------------------------|
