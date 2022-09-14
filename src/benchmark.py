@@ -334,50 +334,130 @@ class Benchmark(object):
         
         self.num_pixels = ds.num_pixels.values
         
-        # GLOBAL STAT
+        # GLOBAL STAT 
         self.std_ac_residual_noise_global = np.sqrt((ds['residual_noise']).var(dim='num_lines')).values
         self.std_ac_karin_noise_global = np.sqrt((ds['karin_noise']).var(dim='num_lines')).values
         self.std_residual_noise_global = np.sqrt((ds['residual_noise']).var()).values
         self.std_karin_noise_global = np.sqrt((ds['karin_noise']).var()).values
-        
+
         self.rmse_ac_residual_noise_global = np.sqrt( ((ds['residual_noise'])**2).mean(dim='num_lines') ).values
         self.rmse_residual_noise_global = np.sqrt( ((ds['residual_noise'])**2).mean() ).values
         
-        # COASTAL (< 200 km) STAT 
+        # COASTAL (< 200 km) STAT  
         ds_tmp = ds.where(ds_input['distance_to_nearest_coastline'] <= 200., drop=True)
         self.std_ac_residual_noise_coastal = np.sqrt((ds_tmp['residual_noise']).var(dim='num_lines')).values
         self.std_ac_karin_noise_coastal = np.sqrt((ds_tmp['karin_noise']).var(dim='num_lines')).values
         self.std_residual_noise_coastal = np.sqrt((ds_tmp['residual_noise']).var()).values
         self.std_karin_noise_coastal = np.sqrt((ds_tmp['karin_noise']).var()).values
-        
+
         self.rmse_ac_residual_noise_coastal = np.sqrt( ((ds_tmp['residual_noise'])**2).mean(dim='num_lines') ).values
         self.rmse_residual_noise_coastal = np.sqrt( ((ds_tmp['residual_noise'])**2).mean() ).values
-        
+
         del ds_tmp
         
-        # OFFSHORE (> 200 km) + LOW VARIABILITY ( < 200cm2) STAT 
+        # OFFSHORE (> 200 km) + LOW VARIABILITY ( < 200cm2) STAT  
         ds_tmp = ds.where((ds_input['distance_to_nearest_coastline'] >= 200.) & (ds_input['ssh_variance'] <= 0.0200), drop=True)
         self.std_ac_residual_noise_offshore_lowvar = np.sqrt((ds_tmp['residual_noise']).var(dim='num_lines')).values
         self.std_ac_karin_noise_offshore_lowvar = np.sqrt((ds_tmp['karin_noise']).var(dim='num_lines')).values
         self.std_residual_noise_offshore_lowvar = np.sqrt((ds_tmp['residual_noise']).var()).values
         self.std_karin_noise_offshore_lowvar = np.sqrt((ds_tmp['karin_noise']).var()).values
-        
+
         self.rmse_ac_residual_noise_offshore_lowvar = np.sqrt( ((ds_tmp['residual_noise'])**2).mean(dim='num_lines') ).values
         self.rmse_residual_noise_offshore_lowvar = np.sqrt( ((ds_tmp['residual_noise'])**2).mean() ).values
-        
+
         del ds_tmp
         
-        # OFFSHORE (> 200 km) + LOW VARIABILITY ( < 200cm2) STAT 
+        # OFFSHORE (> 200 km) + HIGH VARIABILITY ( < 200cm2) STAT  
         ds_tmp = ds.where((ds_input['distance_to_nearest_coastline'] >= 200.) & (ds_input['ssh_variance'] >= 0.0200) , drop=True)
         self.std_ac_residual_noise_offshore_highvar = np.sqrt((ds_tmp['residual_noise']).var(dim='num_lines')).values
         self.std_ac_karin_noise_offshore_highvar = np.sqrt((ds_tmp['karin_noise']).var(dim='num_lines')).values
         self.std_residual_noise_offshore_highvar = np.sqrt((ds_tmp['residual_noise']).var()).values
         self.std_karin_noise_offshore_highvar = np.sqrt((ds_tmp['karin_noise']).var()).values
-        
+
         self.rmse_ac_residual_noise_offshore_highvar = np.sqrt( ((ds_tmp['residual_noise'])**2).mean(dim='num_lines') ).values
         self.rmse_residual_noise_offshore_highvar = np.sqrt( ((ds_tmp['residual_noise'])**2).mean() ).values
-        
+
         del ds_tmp
+        
+         
+    def compute_stats_by_regime2(self, l_files, etuvar, l_files_inputs, regime_type ='all'):
+        """ 
+        calcul des stats 
+        INPUT:
+            l_files: list of swot track files
+            refavr: unfiltered (true) SSH variable name
+            etuvar: filtered SSH variable name
+        """
+        ds = xr.open_mfdataset(l_files, combine='nested', concat_dim='num_lines')
+        ds_input = xr.open_mfdataset(l_files_inputs, combine='nested', concat_dim='num_lines')
+        
+        ds['residual_noise'] = ds[etuvar] - ds_input['ssh_true'].values
+        ds['karin_noise'] = ds_input['ssh_karin'] - ds_input['ssh_true'].values
+        
+        self.num_pixels = ds.num_pixels.values
+        
+        # GLOBAL STAT
+        if regime_type == 'global' or regime_type == 'all':
+            self.std_ac_residual_noise_global = np.sqrt((ds['residual_noise']).var(dim='num_lines')).values
+            self.std_ac_karin_noise_global = np.sqrt((ds['karin_noise']).var(dim='num_lines')).values
+            self.std_residual_noise_global = np.sqrt((ds['residual_noise']).var()).values
+            self.std_karin_noise_global = np.sqrt((ds['karin_noise']).var()).values
+
+            self.rmse_ac_residual_noise_global = np.sqrt( ((ds['residual_noise'])**2).mean(dim='num_lines') ).values
+            self.rmse_residual_noise_global = np.sqrt( ((ds['residual_noise'])**2).mean() ).values
+            
+        ind_dtnc = np.ones_like(ds['distance_to_nearest_coastline'].values)
+        ind_dtnc[np.array((ds['distance_to_nearest_coastline'] >= 200.).values)]=np.nan
+        
+        # COASTAL (< 200 km) STAT 
+        if regime_type == 'coastal' or regime_type == 'all':
+            #ds_tmp = ds.where(ds_input['distance_to_nearest_coastline'] <= 200., drop=True)
+            self.std_ac_residual_noise_coastal = np.sqrt((ds['residual_noise']*ind_dtnc).var(dim='num_lines')).values
+            self.std_ac_karin_noise_coastal = np.sqrt((ds['karin_noise']*ind_dtnc).var(dim='num_lines')).values
+            self.std_residual_noise_coastal = np.sqrt((ds['residual_noise']*ind_dtnc).var()).values
+            self.std_karin_noise_coastal = np.sqrt((ds['karin_noise']*ind_dtnc).var()).values
+
+            self.rmse_ac_residual_noise_coastal = np.sqrt( ((ds['residual_noise']*ind_dtnc)**2).mean(dim='num_lines') ).values
+            self.rmse_residual_noise_coastal = np.sqrt( ((ds['residual_noise']*ind_dtnc)**2).mean() ).values
+
+            #del ds_tmp
+        
+        ind_dtnc = np.ones_like(ds['distance_to_nearest_coastline'].values)
+        ind_dtnc[np.array((ds['distance_to_nearest_coastline'] <= 200.).values)]=np.nan
+        
+        ind_sshvar02 = np.ones_like(ds_input['ssh_variance'].values)
+        ind_sshvar02[np.array((ds_input['ssh_variance'] >= 0.0200).values)] = np.nan 
+        
+        # OFFSHORE (> 200 km) + LOW VARIABILITY ( < 200cm2) STAT 
+        if regime_type == 'offshore_lv' or regime_type == 'all':
+            #ds_tmp = ds.where((ds_input['distance_to_nearest_coastline'] >= 200.) & (ds_input['ssh_variance'] <= 0.0200), drop=True)
+            self.std_ac_residual_noise_offshore_lowvar = np.sqrt((ds['residual_noise']*ind_dtnc*ind_sshvar02).var(dim='num_lines')).values
+            self.std_ac_karin_noise_offshore_lowvar = np.sqrt((ds['karin_noise']*ind_dtnc*ind_sshvar02).var(dim='num_lines')).values
+            self.std_residual_noise_offshore_lowvar = np.sqrt((ds['residual_noise']*ind_dtnc*ind_sshvar02).var()).values
+            self.std_karin_noise_offshore_lowvar = np.sqrt((ds['karin_noise']*ind_dtnc*ind_sshvar02).var()).values
+
+            self.rmse_ac_residual_noise_offshore_lowvar = np.sqrt( ((ds['residual_noise']*ind_dtnc*ind_sshvar02)**2).mean(dim='num_lines') ).values
+            self.rmse_residual_noise_offshore_lowvar = np.sqrt( ((ds['residual_noise']*ind_dtnc*ind_sshvar02)**2).mean() ).values
+
+            #del ds_tmp
+        
+        ind_sshvar02 = np.ones_like(ds_input['ssh_variance'].values)
+        ind_sshvar02[np.array((ds_input['ssh_variance'] <= 0.0200).values)] = np.nan 
+        
+        # OFFSHORE (> 200 km) + HIGH VARIABILITY ( < 200cm2) STAT 
+        if regime_type == 'offshore_hv' or regime_type == 'all':
+            #ds_tmp = ds.where((ds_input['distance_to_nearest_coastline'] >= 200.) & (ds_input['ssh_variance'] >= 0.0200) , drop=True)
+            self.std_ac_residual_noise_offshore_highvar = np.sqrt((ds['residual_noise']*ind_dtnc*ind_sshvar02).var(dim='num_lines')).values
+            self.std_ac_karin_noise_offshore_highvar = np.sqrt((ds['karin_noise']*ind_dtnc*ind_sshvar02).var(dim='num_lines')).values
+            self.std_residual_noise_offshore_highvar = np.sqrt((ds['residual_noise']*ind_dtnc*ind_sshvar02).var()).values
+            self.std_karin_noise_offshore_highvar = np.sqrt((ds['karin_noise']*ind_dtnc*ind_sshvar02).var()).values
+
+            self.rmse_ac_residual_noise_offshore_highvar = np.sqrt( ((ds['residual_noise']*ind_dtnc*ind_sshvar02)**2).mean(dim='num_lines') ).values
+            self.rmse_residual_noise_offshore_highvar = np.sqrt( ((ds['residual_noise']*ind_dtnc*ind_sshvar02)**2).mean() ).values
+
+            #del ds_tmp
+        
+         
         
         
     def write_stats_by_regime(self, fname, **kwargs):
@@ -455,6 +535,8 @@ class Benchmark(object):
         plt.plot(ds.num_pixels,ds['std_ac_karin_noise_offshore_lowvar'].values,'g--', label='karin_noise_offshore_lowvar')
         plt.plot(ds.num_pixels,ds['std_ac_karin_noise_offshore_highvar'].values,'k--', label='karin_noise_offshore_highvar')
         plt.legend(ncol=2)
+        plt.grid()
+        plt.axis([0,72,0,0.03])
  
         
             
@@ -670,15 +752,15 @@ class Benchmark(object):
         plt.xlim(max(x), min(x))
 
         plt.subplot(122)
-        ds['SNR_filter'] = 1-ds['psd_err']/ds['psd_ssh_true']
-        ds['SNR_nofilter'] = 1-ds['psd_err_karin']/ds['psd_ssh_true']
+        ds['SNR_filter'] = ds['psd_err']/ds['psd_ssh_true']
+        ds['SNR_nofilter'] = ds['psd_err_karin']/ds['psd_ssh_true']
         plt.semilogx(ds.wavelength.values,ds['SNR_filter'].values,c='#2ca02c', label='SNR_filter')
         plt.semilogx(ds.wavelength.values,ds['SNR_nofilter'].values,c='#ff7f0e', label='SNR_nofilter')
-        plt.semilogx(ds.wavelength.values,0.5*np.ones_like(ds.wavelength.values),c='grey',linestyle='--', label='SNR = 0.5') 
+        plt.semilogx(ds.wavelength.values,np.ones_like(ds.wavelength.values),c='grey',linestyle='--', label='SNR = 1') 
         plt.legend()
-        plt.ylim(0,1)
+        plt.ylim(0,2)
         plt.xlabel('wavelenght [km]')
-        plt.ylabel('PSD [m2/cy/km]')
+        plt.ylabel('Signal-to-Noise Ratio')
         x=ds.wavelength.values[np.isfinite(ds.wavelength.values)]
         plt.xlim(max(x), min(x))
 
