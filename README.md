@@ -28,20 +28,19 @@ SWOT product and requirement
 
 In practice, the data challenge is in the form of an Observing System Simulation Experiment (OSSE) considering a realistic ocean model simulation (eNATL60) as the true ocean state. The SWOT simulator (Gauthier et al., 2016) was then used to create realistic SWOT data with and without instrumental noise. 
 
-## Observations
- 
 
-The data challenge is in the form of an Observing System Simulation Experiment (OSSE) considering a realistic ocean model simulation, the NEMO high resolution North Atlantic simulation **eNATL60**, as the true ocean state. The SWOT simulator (Gauthier et al., 2016) was then used to create realistic SWOT data with and without instrumental noise. 
+## Data sequence and use
 
-The noisy SWOT data to filter (inputs) and their equivalent noise-free SWOT data for evaluation (targets) are hosted and available for download on the MEOM opendap server: see **Download the data** section below.
+The data challenge is in the form of an Observing System Simulation Experiment (OSSE) considering a realistic ocean model simulation, the NEMO high resolution North Atlantic simulation **NATL60**, as the true ocean state. The SWOT simulator (Gauthier et al., 2016) was then used to create realistic SWOT data with and without instrumental noise. 
+
+The experiment is performed over one SWOT orbital cycle (cycle 13) which contains 270 passes. All other cycles are available to tune or train the filters.
+
+The noisy SWOT data to filter (the inputs: **ssh_karin**) and their equivalent noise-free SWOT data for evaluation (the targets: **ssh_true**) are hosted and available for download on the MEOM opendap server: see **Download the data** section below.
 In no way the targets that are available during the evaluation period should be used in the filtering process (including for tuning the filter).   
-
 
 
 <img src="figures/DC_SWOT_Filtering-data_illustration.png" />
 
-
-## Data sequence and use
 
 
 ## Data format
