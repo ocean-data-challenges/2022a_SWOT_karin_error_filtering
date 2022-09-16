@@ -234,95 +234,42 @@ class Benchmark(object):
         
     def plot_stats(self, fname ):
         
+        import cartopy.crs as ccrs
+        import cartopy.feature as cfeature
 
-        ds = xr.open_dataset(fname)
-
+        ds = xr.open_dataset(fname) 
         lon,lat=np.meshgrid(ds.lon,ds.lat) 
+  
 
-        from mpl_toolkits.basemap import Basemap
-        m = Basemap(llcrnrlon=-100.,llcrnrlat=5.,urcrnrlon=45.,urcrnrlat=69.,
-                    resolution ='l',area_thresh=1000.)
-
-
-        fig = plt.figure(figsize=(18,18))
-
-        if False: 
-            
-            vmin = np.nanpercentile(ds['ssh_mean'], 5)
-            vmax = np.nanpercentile(ds['ssh_mean'], 95)
-            vmaxabs = max(abs(vmin),abs(vmax))
-            ax1 = fig.add_subplot(3,3,1)        
-            plt.scatter(lon,lat,c=ds['ssh_mean'].values, vmin=-vmaxabs, vmax=vmaxabs, cmap='bwr')
-            plt.colorbar()
-            ax1.title.set_text('SSH residual MEAN')
-
-            vmin = np.nanpercentile(ds['ssh_variance'], 5)
-            vmax = np.nanpercentile(ds['ssh_variance'], 95)
-            vmaxabs = max(abs(vmin),abs(vmax))
-            ax2 = fig.add_subplot(3,3,2)        
-            plt.scatter(lon,lat,c=ds['ssh_variance'].values, vmin=-vmaxabs, vmax=vmaxabs, cmap='bwr')
-            plt.colorbar()
-            ax2.title.set_text('SSH residual VARIANCE')
+        fig = plt.figure(figsize=(18,18))   
 
         vmin = np.nanpercentile(ds['ssh_rmse'], 5)
         vmax = np.nanpercentile(ds['ssh_rmse'], 95)
-        ax3 = fig.add_subplot(3,1,1)        
+        ax3 = fig.add_subplot(3,1,1, projection=ccrs.PlateCarree())        
         plt.scatter(lon,lat,c=ds['ssh_rmse'].values, vmin=0, vmax=vmax, cmap='Reds')
         plt.colorbar()
         ax3.title.set_text('SSH residual RMSE') 
-        m.fillcontinents(color='moccasin') 
-
-        if False: 
-            
-            vmin = np.nanpercentile(ds['grad_ssh_across_mean'], 5)
-            vmax = np.nanpercentile(ds['grad_ssh_across_mean'], 95)
-            vmaxabs = max(abs(vmin),abs(vmax))
-            ax4 = fig.add_subplot(3,3,4)        
-            plt.scatter(lon,lat,c=ds['grad_ssh_across_mean'].values, vmin=-vmaxabs, vmax=vmaxabs, cmap='bwr')
-            plt.colorbar()
-            ax4.title.set_text('grad_ac SSH residual MEAN')
-
-            vmin = np.nanpercentile(ds['grad_ssh_across_variance'], 5)
-            vmax = np.nanpercentile(ds['grad_ssh_across_variance'], 95)
-            vmaxabs = max(abs(vmin),abs(vmax))
-            ax5 = fig.add_subplot(3,3,5)        
-            plt.scatter(lon,lat,c=ds['grad_ssh_across_variance'].values, vmin=-vmaxabs, vmax=vmaxabs, cmap='bwr')
-            plt.colorbar()
-            ax5.title.set_text('grad_ac SSH residual VARIANCE')
+        ax3.set_extent([-100, 45, 5, 69], crs=ccrs.PlateCarree())
+        ax3.add_feature(cfeature.LAND) 
 
         vmin = np.nanpercentile(ds['grad_ssh_across_rmse'], 5)
         vmax = np.nanpercentile(ds['grad_ssh_across_rmse'], 95)
-        ax6 = fig.add_subplot(3,1,2)        
+        ax6 = fig.add_subplot(3,1,2, projection=ccrs.PlateCarree())        
         plt.scatter(lon,lat,c=ds['grad_ssh_across_rmse'].values, vmin=0, vmax=vmax, cmap='Reds')
         plt.colorbar()
-        ax6.title.set_text('grad_ac SSH residual RMSE')
-        m.fillcontinents(color='moccasin') 
-
-        if False: 
-            
-            vmin = np.nanpercentile(ds['grad_ssh_along_mean'], 5)
-            vmax = np.nanpercentile(ds['grad_ssh_along_mean'], 95)
-            vmaxabs = max(abs(vmin),abs(vmax))
-            ax7 = fig.add_subplot(3,3,7)        
-            plt.scatter(lon,lat,c=ds['grad_ssh_along_mean'].values, vmin=-vmaxabs, vmax=vmaxabs, cmap='bwr')
-            plt.colorbar()
-            ax7.title.set_text('grad_al SSH residual MEAN')
-
-            vmin = np.nanpercentile(ds['grad_ssh_along_variance'], 5)
-            vmax = np.nanpercentile(ds['grad_ssh_along_variance'], 95)
-            vmaxabs = max(abs(vmin),abs(vmax))
-            ax8 = fig.add_subplot(3,3,8)        
-            plt.scatter(lon,lat,c=ds['grad_ssh_along_variance'].values, vmin=-vmaxabs, vmax=vmaxabs, cmap='bwr')
-            plt.colorbar()
-            ax8.title.set_text('grad_al SSH residual VARIANCE')
+        ax6.title.set_text('grad_ac SSH residual RMSE') 
+        ax6.set_extent([-100, 45, 5, 69], crs=ccrs.PlateCarree())
+        ax6.add_feature(cfeature.LAND) 
 
         vmin = np.nanpercentile(ds['grad_ssh_along_rmse'], 5)
         vmax = np.nanpercentile(ds['grad_ssh_along_rmse'], 95)
-        ax9 = fig.add_subplot(3,1,3)        
+        ax9 = fig.add_subplot(3,1,3, projection=ccrs.PlateCarree())        
         plt.scatter(lon,lat,c=ds['grad_ssh_along_rmse'].values, vmin=0, vmax=vmax, cmap='Reds')
         plt.colorbar()
         ax9.title.set_text('grad_al SSH residual RMSE')
-        m.fillcontinents(color='moccasin') 
+        ax9.set_extent([-100, 45, 5, 69], crs=ccrs.PlateCarree())
+        ax9.add_feature(cfeature.LAND)
+         
 
 
         plt.show()
