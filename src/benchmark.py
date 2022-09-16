@@ -239,7 +239,9 @@ class Benchmark(object):
 
         lon,lat=np.meshgrid(ds.lon,ds.lat) 
 
-
+        from mpl_toolkits.basemap import Basemap
+        m = Basemap(llcrnrlon=-100.,llcrnrlat=5.,urcrnrlon=45.,urcrnrlat=69.,
+                    resolution ='l',area_thresh=1000.)
 
 
         fig = plt.figure(figsize=(18,18))
@@ -268,6 +270,7 @@ class Benchmark(object):
         plt.scatter(lon,lat,c=ds['ssh_rmse'].values, vmin=0, vmax=vmax, cmap='Reds')
         plt.colorbar()
         ax3.title.set_text('SSH residual RMSE') 
+        m.fillcontinents(color='moccasin') 
 
         if False: 
             
@@ -293,6 +296,7 @@ class Benchmark(object):
         plt.scatter(lon,lat,c=ds['grad_ssh_across_rmse'].values, vmin=0, vmax=vmax, cmap='Reds')
         plt.colorbar()
         ax6.title.set_text('grad_ac SSH residual RMSE')
+        m.fillcontinents(color='moccasin') 
 
         if False: 
             
@@ -318,6 +322,7 @@ class Benchmark(object):
         plt.scatter(lon,lat,c=ds['grad_ssh_along_rmse'].values, vmin=0, vmax=vmax, cmap='Reds')
         plt.colorbar()
         ax9.title.set_text('grad_al SSH residual RMSE')
+        m.fillcontinents(color='moccasin') 
 
 
         plt.show()

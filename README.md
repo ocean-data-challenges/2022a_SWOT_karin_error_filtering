@@ -88,19 +88,30 @@ and can be downloaded using:
 |  2 | CNN      |           0.002 |            0.002 |                    0.002 |                     0.003 |                            44.5 |                           10.5 | [demo_benchmark_CNN.ipynb](https://github.com/ocean-data-challenges/2022a_SWOT_karin_error_filtering/blob/main/notebook/demo_benchmark_CNN.ipynb) |
 
 
-## Quickstart
+## Installation
 :computer: _**How to get started ?**_
 
-Create the data challenge conda environment, named env-dc-swot-filtering, by running the following command:
-
+Clone the data challenge repo: 
 ```
-conda env create -f environment.yml
+git clone https://github.com/ocean-data-challenges/2022a_SWOT_karin_error_filtering.git
 ```
-and then activate it with:
+create the data challenge conda environment, named env-dc-swot-filtering, by running the following command:
+```
+conda env create --file=environment.yml 
+```
+and activate it with:
 
 ```
 conda activate env-dc-swot-filtering
 ```
+then add it to the available kernels for jupyter to see: 
+```
+ipython kernel install --name "env-dc-swot-filtering" --user
+```
+
+You're now good to go !
+
+[Check out the quickstart](quickstart.ipynb)
 
 
 ## Download the data

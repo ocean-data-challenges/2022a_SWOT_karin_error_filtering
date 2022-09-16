@@ -8,6 +8,7 @@ dependencies:
   - hvplot
   - conda-forge::pyinterp
   - holoviews
+  - anaconda::basemap
   - geoviews
   - cartopy
   - tabulate
