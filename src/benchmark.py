@@ -383,10 +383,10 @@ class Benchmark(object):
             std_ac_karin_noise_global = ds_stat_karin_noise.std()
         
             ds_stat_residual_noise2 = pyinterp.DescriptiveStatistics((masked_residual_noise)**2, axis=0)
-            rmse_ac_residual_noise_global = ds_stat_residual_noise2.mean()
+            rmse_ac_residual_noise_global = np.sqrt(ds_stat_residual_noise2.mean())
         
             ds_stat_residual_noise2 = pyinterp.DescriptiveStatistics((masked_residual_noise)**2)
-            rmse_residual_noise_global = ds_stat_residual_noise2.mean()
+            rmse_residual_noise_global = np.sqrt(ds_stat_residual_noise2.mean())
             
             return std_ac_residual_noise_global, std_ac_karin_noise_global, rmse_ac_residual_noise_global, rmse_residual_noise_global
         
