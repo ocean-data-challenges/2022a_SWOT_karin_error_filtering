@@ -5,10 +5,9 @@ import sys
 import matplotlib.pylab as plt
 sys.path.append('..')
 from src.filters_bidim import median_filter, lanczos_filter, loess_filter, gaussian_filter, boxcar_filter, lee_filter
- 
+
 
 class SwotTrack(object):
- 
 
     def __init__(self, fname=None, dset=None):
         """ constructeur """
@@ -21,9 +20,9 @@ class SwotTrack(object):
         else:
             raise Exception('either fname or dset should be provided')
 
-        self._nadir_mask = None 
-         
-          
+        self._nadir_mask = None
+        
+        
     
     def compute_geos_current(self, invar, outvar):
         
@@ -53,9 +52,28 @@ class SwotTrack(object):
         ref_gx, ref_gy = gravity/f_coriolis*np.gradient(ds[invar], dx, edge_order=2)
         geos_current = np.sqrt(ref_gx**2 + ref_gy**2)
         
-        self.__enrich_dataset(outvar, geos_current)
+        self.fc = f_coriolis
         
-    
+        self.__enrich_dataset(outvar, geos_current)
+        self.__enrich_dataset(outvar + '_x', ref_gx)
+        self.__enrich_dataset(outvar + '_y', ref_gy)
+        
+        
+    def compute_relative_vorticity(self, invar_x, invar_y, outvar):
+        
+        ds = self._dset
+        
+        dx = 2000 # m
+        dy = 2000 # m
+        
+        du_dx, du_dy = np.gradient(ds[invar_x], dx, edge_order=2)
+        dv_dx, dv_dy = np.gradient(ds[invar_y], dx, edge_order=2)
+        
+        ksi = (dv_dx - du_dy)/self.fc
+        
+        self.__enrich_dataset(outvar, ksi)
+        
+        
     def display_demo_target(self):
         
         ds = self._dset
@@ -67,24 +85,38 @@ class SwotTrack(object):
         vmin = np.nanpercentile(ds['simulated_true_ssh_karin'], 5)
         vmax = np.nanpercentile(ds['simulated_true_ssh_karin'], 95)
         
-        plt.figure(figsize=(22, 3))
-        plt.subplot(121)
+        plt.figure(figsize=(10, 10))
+        plt.subplots_adjust(left=0.1,
+                    bottom=0.1, 
+                    right=0.9, 
+                    top=0.9, 
+                    wspace=0.4, 
+                    hspace=0.4)
+        plt.subplot(311)
         (ds.simulated_true_ssh_karin*msk).T.plot(vmin=vmin, vmax=vmax, cmap='Spectral_r', cbar_kwargs={'label': '[m]'})
         plt.title('TARGET: SSH true', fontweight='bold')
         plt.xlabel('[km]')
         plt.ylabel('[km]')
-        #plt.xlim(2400, 3000)
-        plt.subplot(122)
+        
+        plt.subplot(312)
         (ds.simulated_true_geos_current*msk).T.plot(vmin=0, vmax=0.5, cmap='Blues_r', cbar_kwargs={'label': '[m.s$^{-1}$]'})
         plt.title('TARGET: Geos. current from SSH true', fontweight='bold')
         plt.xlabel('[km]')
         plt.ylabel('[km]')
-        #plt.xlim(2400, 3000)
+        
+        plt.subplot(313)
+        vmin = np.nanpercentile(ds['simulated_true_ksi'], 5)
+        vmax = np.nanpercentile(ds['simulated_true_ksi'], 95)
+        vdata = np.maximum(np.abs(vmin), np.abs(vmax))
+        (ds.simulated_true_ksi*msk).T.plot(vmin=-vdata, vmax=vdata, cmap='BrBG', cbar_kwargs={'label': '[s$^{-1}$]'})
+        plt.title('TARGET: Relative vorticity from SSH true', fontweight='bold')
+        plt.xlabel('[km]')
+        plt.ylabel('[km]')
+        
         
         plt.show()
         
-      
-    
+
     def display_demo(self, var_name='karin',msk=None, vmin=None, vmax=None):
         
         ds = self._dset
@@ -99,16 +131,30 @@ class SwotTrack(object):
         if vmax is None:
             vmax = np.nanpercentile(ds['ssh_'+var_name], 95)
         
-        plt.figure(figsize=(22, 3))
-        plt.subplot(121)
+        plt.figure(figsize=(10, 10))
+        plt.subplots_adjust(left=0.1,
+                    bottom=0.1, 
+                    right=0.9, 
+                    top=0.9, 
+                    wspace=0.4, 
+                    hspace=0.4)
+        plt.subplot(311)
         (ds['ssh_'+var_name]*msk).T.plot(vmin=vmin, vmax=vmax, cmap='Spectral_r', cbar_kwargs={'label': '[m]'})
         plt.title('SSH '+var_name, fontweight='bold')
         plt.xlabel('[km]')
         plt.ylabel('[km]')
         #plt.xlim(2400, 3000)
-        plt.subplot(122)
+        plt.subplot(312)
         (ds['geos_current_'+var_name]*msk).T.plot(vmin=0, vmax=0.5, cmap='Blues_r', cbar_kwargs={'label': '[m.s$^{-1}$]'})
         plt.title('Geos. current from SSH '+var_name, fontweight='bold')
+        plt.xlabel('[km]')
+        plt.ylabel('[km]')
+        plt.subplot(313)
+        vmin_ksi = np.nanpercentile(ds['ksi_'+var_name]*msk, 5)
+        vmax_ksi = np.nanpercentile(ds['ksi_'+var_name]*msk, 95)
+        vdata = np.maximum(np.abs(vmin_ksi), np.abs(vmax_ksi))
+        (ds['ksi_'+var_name]*msk).T.plot(vmin=-vdata, vmax=vdata, cmap='BrBG', cbar_kwargs={'label': '[m.s$^{-1}$]'})
+        plt.title('Relative vorticity from Geos. current '+var_name, fontweight='bold')
         plt.xlabel('[km]')
         plt.ylabel('[km]')
         #plt.xlim(2400, 3000)
@@ -130,19 +176,34 @@ class SwotTrack(object):
         vmin = np.nanpercentile(ds['simulated_true_ssh_karin'], 5)
         vmax = np.nanpercentile(ds['simulated_true_ssh_karin'], 95)
         
-        plt.figure(figsize=(22, 3))
-        plt.subplot(121)
+        plt.figure(figsize=(10, 10))
+        plt.subplots_adjust(left=0.1,
+                    bottom=0.1, 
+                    right=0.9, 
+                    top=0.9, 
+                    wspace=0.4, 
+                    hspace=0.4)
+        plt.subplot(311)
         ds.simulated_noise_ssh_karin.T.plot(vmin=vmin, vmax=vmax, cmap='Spectral_r', cbar_kwargs={'label': '[m]'})
         plt.title('INPUT: SSH true + KaRin noise', fontweight='bold')
         plt.xlabel('[km]')
         plt.ylabel('[km]')
-        #plt.xlim(2400, 3000)
-        plt.subplot(122)
+
+        plt.subplot(312)
         ds.simulated_noisy_geos_current.T.plot(vmin=0, vmax=0.5, cmap='Blues_r', cbar_kwargs={'label': '[m.s$^{-1}$]'})
         plt.title('Geos. current from SSH true + KaRin noise', fontweight='bold')
         plt.xlabel('[km]')
         plt.ylabel('[km]')
-        #plt.xlim(2400, 3000)
+        
+        plt.subplot(313)
+        vmin = np.nanpercentile(ds['simulated_true_ksi'], 5)
+        vmax = np.nanpercentile(ds['simulated_true_ksi'], 95)
+        vdata = np.maximum(np.abs(vmin), np.abs(vmax))
+        (ds.simulated_noisy_ksi*msk).T.plot(vmin=-vdata, vmax=vdata, cmap='BrBG', cbar_kwargs={'label': '[s$^{-1}$]'})
+        plt.title('TARGET: Relative vorticity from SSH true', fontweight='bold')
+        plt.xlabel('[km]')
+        plt.ylabel('[km]')
+
         
         plt.show()
         
@@ -380,8 +441,6 @@ class SwotTrack(object):
         """ add a new variable to the dataset """
         self._dset = self._dset.assign(dict(temp=(('num_lines', 'num_pixels'), array)))
         self._dset = self._dset.rename_vars({'temp': varname})
-         
-          
 
     def fill_nadir_gap(self, invar):
         """ fill nadir gap """
