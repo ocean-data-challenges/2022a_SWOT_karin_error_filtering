@@ -852,10 +852,10 @@ class Benchmark(object):
         fig = plt.figure(figsize=(15, 18))
 
         ax = plt.subplot(321)
-        ds['psd_ssh_true'].plot(x='wavelength', label='PSD(SSH$_{true}$', color='k', xscale='log', yscale='log', lw=3)
-        ds['psd_ssh_noisy'].plot(x='wavelength', label='PSD(SSH$_{noisy}$', color='r', lw=2)
-        ds['psd_ssh_filtered'].plot(x='wavelength', label='PSD(SSH$_{filtered}$', color='b', lw=2)
-        ds['psd_err'].plot(x='wavelength', label='PSD(SSH$_{err}$', color='grey', lw=2)
+        ds['psd_ssh_true'].plot(x='wavelength', label='PSD(SSH$_{true}$)', color='k', xscale='log', yscale='log', lw=3)
+        ds['psd_ssh_noisy'].plot(x='wavelength', label='PSD(SSH$_{noisy}$)', color='r', lw=2)
+        ds['psd_ssh_filtered'].plot(x='wavelength', label='PSD(SSH$_{filtered}$)', color='b', lw=2)
+        ds['psd_err'].plot(x='wavelength', label='PSD(SSH$_{err}$)', color='grey', lw=2)
         plt.grid(which='both')
         plt.legend()
         plt.xlabel('wavelenght [km]')
@@ -866,8 +866,8 @@ class Benchmark(object):
         ds['SNR_filter'] = ds['psd_err']/ds['psd_ssh_true']
         ds['SNR_nofilter'] = ds['psd_err_karin']/ds['psd_ssh_true']
         ax = plt.subplot(322)
-        ds['SNR_filter'].plot(x='wavelength', label='PSD(SSH$_{err}$/PSD(SSH$_{true}$', color='b', xscale='log', lw=3)
-        ds['SNR_nofilter'].plot(x='wavelength', label='PSD(Karin$_{noise}$/PSD(SSH$_{true}$)', color='r', lw=2)
+        ds['SNR_filter'].plot(x='wavelength', label='PSD(SSH$_{err}$)/PSD(SSH$_{true}$)', color='b', xscale='log', lw=3)
+        ds['SNR_nofilter'].plot(x='wavelength', label='PSD(Karin$_{noise}$)/PSD(SSH$_{true}$)', color='r', lw=2)
         (ds['SNR_filter']/ds['SNR_filter']).plot(x='wavelength', label='SNR=1', color='grey', lw=2)
         plt.scatter(ds.wavelength_snr1_filter, 1., color='b', zorder=4, label="SNR1 AFTER filter")
         plt.scatter(ds.wavelength_snr1_nofilter, 1., color='r', zorder=4, label="SNR1 BEFORE filter")
@@ -896,8 +896,8 @@ class Benchmark(object):
         ds['SNR_filter_ug'] = ds['psd_err_ug']/ds['psd_ug_true']
         ds['SNR_nofilter_ug'] = ds['psd_err_karin_ug']/ds['psd_ug_true']
         ax = plt.subplot(324)
-        ds['SNR_filter_ug'].plot(x='wavelength', label='PSD(Ug$_{err}$/PSD(Ug$_{true}$', color='b', xscale='log', lw=3)
-        ds['SNR_nofilter_ug'].plot(x='wavelength', label='PSD(Ug$_{noise}$/PSD(Ug$_{true}$)', color='r', lw=2)
+        ds['SNR_filter_ug'].plot(x='wavelength', label='PSD(Ug$_{err}$)/PSD(Ug$_{true}$)', color='b', xscale='log', lw=3)
+        ds['SNR_nofilter_ug'].plot(x='wavelength', label='PSD(Ug$_{noise}$)/PSD(Ug$_{true}$)', color='r', lw=2)
         (ds['SNR_filter_ug']/ds['SNR_filter_ug']).plot(x='wavelength', label='SNR=1', color='grey', lw=2)
         plt.scatter(ds.wavelength_snr1_filter_ug, 1., color='b', zorder=4, label="SNR1 AFTER filter")
         plt.scatter(ds.wavelength_snr1_nofilter_ug, 1., color='r', zorder=4, label="SNR1 BEFORE filter")
@@ -925,8 +925,8 @@ class Benchmark(object):
         ds['SNR_filter_ksi'] = ds['psd_err_ksi']/ds['psd_ksi_true']
         ds['SNR_nofilter_ksi'] = ds['psd_err_karin_ksi']/ds['psd_ksi_true']
         ax = plt.subplot(326)
-        ds['SNR_filter_ksi'].plot(x='wavelength', label='PSD($\zeta_{err}$/PSD($\zeta_{true}$', color='b', xscale='log', lw=3)
-        ds['SNR_nofilter_ksi'].plot(x='wavelength', label='PSD($\zeta_{noise}$/PSD($\zeta_{true}$)', color='r', lw=2)
+        ds['SNR_filter_ksi'].plot(x='wavelength', label='PSD($\zeta_{err}$)/PSD($\zeta_{true}$)', color='b', xscale='log', lw=3)
+        ds['SNR_nofilter_ksi'].plot(x='wavelength', label='PSD($\zeta_{noise}$)/PSD($\zeta_{true}$)', color='r', lw=2)
         (ds['SNR_filter_ksi']/ds['SNR_filter_ksi']).plot(x='wavelength', label='SNR=1', color='grey', lw=2)
         plt.scatter(ds.wavelength_snr1_filter_ksi, 1., color='b', zorder=4, label="SNR1 AFTER filter")
         plt.scatter(ds.wavelength_snr1_nofilter_ksi, 1., color='r', zorder=4, label="SNR1 BEFORE filter")
