@@ -371,6 +371,16 @@ class Benchmark(object):
         ds['residual_noise'] = ds[etuvar] - ds_input['ssh_true']
         ds['karin_noise'] = ds_input['ssh_karin'] - ds_input['ssh_true']
         
+        ds['ssh_true'] =  ds_input['ssh_true']
+        swt = SwotTrack(dset=ds)
+        swt.compute_geos_current(etuvar, 'filtered_geos_current')
+        swt.compute_relative_vorticity('filtered_geos_current_x', 'filtered_geos_current_y', 'filtered_ksi')
+        swt.compute_geos_current('ssh_true', 'true_geos_current')
+        swt.compute_relative_vorticity('true_geos_current_x', 'true_geos_current_y', 'true_ksi')
+        
+        ds['residual_noise_ug'] = swt._dset['filtered_geos_current'] - swt._dset['true_geos_current']
+        ds['residual_noise_ksi'] = swt._dset['filtered_ksi'] - swt._dset['true_ksi']
+        
         self.num_pixels = ds.num_pixels.values
         
         def compute_stats(ds, msk):
@@ -388,29 +398,45 @@ class Benchmark(object):
             ds_stat_residual_noise2 = pyinterp.DescriptiveStatistics((masked_residual_noise)**2)
             rmse_residual_noise_global = np.sqrt(ds_stat_residual_noise2.mean())
             
-            return std_ac_residual_noise_global, std_ac_karin_noise_global, rmse_ac_residual_noise_global, rmse_residual_noise_global
+            # Ug
+            masked_residual_noise = (ds['residual_noise_ug']*msk)
+            # ds_stat_residual_noise2 = pyinterp.DescriptiveStatistics((masked_residual_noise)**2, axis=0)
+            # rmse_ac_residual_noise_global = np.sqrt(ds_stat_residual_noise2.mean())
+        
+            ds_stat_residual_noise2 = pyinterp.DescriptiveStatistics((masked_residual_noise)**2)
+            rmse_residual_noise_ug_global = np.sqrt(ds_stat_residual_noise2.mean())
+            
+            # ksi
+            masked_residual_noise = (ds['residual_noise_ksi']*msk)
+            # ds_stat_residual_noise2 = pyinterp.DescriptiveStatistics((masked_residual_noise)**2, axis=0)
+            # rmse_ac_residual_noise_global = np.sqrt(ds_stat_residual_noise2.mean())
+        
+            ds_stat_residual_noise2 = pyinterp.DescriptiveStatistics((masked_residual_noise)**2)
+            rmse_residual_noise_ksi_global = np.sqrt(ds_stat_residual_noise2.mean())
+            
+            return std_ac_residual_noise_global, std_ac_karin_noise_global, rmse_ac_residual_noise_global, rmse_residual_noise_global, rmse_residual_noise_ug_global, rmse_residual_noise_ksi_global
         
         # GLOBAL STAT
         msk = np.ones(ds_input.mask_coastline_200km.shape)
-        self.std_ac_residual_noise_global, self.std_ac_karin_noise_global, self.rmse_ac_residual_noise_global, self.rmse_residual_noise_global = compute_stats(ds, msk)
+        self.std_ac_residual_noise_global, self.std_ac_karin_noise_global, self.rmse_ac_residual_noise_global, self.rmse_residual_noise_global, self.rmse_residual_noise_global_ug, self.rmse_residual_noise_global_ksi = compute_stats(ds, msk)
         
         # COASTAL (< 200 km) STAT
         ind_dtcl = np.ones(ds_input.mask_coastline_200km.shape) 
         ind_dtcl[ds_input['mask_coastline_200km']==1] = np.nan
         msk = ind_dtcl
-        self.std_ac_residual_noise_coastal, self.std_ac_karin_noise_coastal, self.rmse_ac_residual_noise_coastal, self.rmse_residual_noise_coastal = compute_stats(ds, msk)
+        self.std_ac_residual_noise_coastal, self.std_ac_karin_noise_coastal, self.rmse_ac_residual_noise_coastal, self.rmse_residual_noise_coastal, self.rmse_residual_noise_coastal_ug, self.rmse_residual_noise_coastal_ksi = compute_stats(ds, msk)
         
         # OFFSHORE (> 200 km) + LOW VARIABILITY ( < 200cm2) STAT 
         ind_invdtcl = ds_input['mask_coastline_200km']
         ind_invsshvar02 = ds_input['mask_ssh_var_over200cm2']
         msk = ind_invdtcl*ind_invsshvar02
-        self.std_ac_residual_noise_offshore_lowvar, self.std_ac_karin_noise_offshore_lowvar, self.rmse_ac_residual_noise_offshore_lowvar, self.rmse_residual_noise_offshore_lowvar = compute_stats(ds, msk)
+        self.std_ac_residual_noise_offshore_lowvar, self.std_ac_karin_noise_offshore_lowvar, self.rmse_ac_residual_noise_offshore_lowvar, self.rmse_residual_noise_offshore_lowvar, self.rmse_residual_noise_offshore_lowvar_ug, self.rmse_residual_noise_offshore_lowvar_ksi = compute_stats(ds, msk)
         
         # OFFSHORE (> 200 km) + HIGH VARIABILITY ( < 200cm2) STAT
         ind_sshvar02 = np.ones(ds_input.mask_ssh_var_over200cm2.shape) 
         ind_sshvar02[ds_input['mask_ssh_var_over200cm2']==1] = np.nan
         msk = ind_invdtcl*ind_sshvar02
-        self.std_ac_residual_noise_offshore_highvar, self.std_ac_karin_noise_offshore_highvar, self.rmse_ac_residual_noise_offshore_highvar, self.rmse_residual_noise_offshore_highvar = compute_stats(ds, msk)
+        self.std_ac_residual_noise_offshore_highvar, self.std_ac_karin_noise_offshore_highvar, self.rmse_ac_residual_noise_offshore_highvar, self.rmse_residual_noise_offshore_highvar, self.rmse_residual_noise_offshore_highvar_ug, self.rmse_residual_noise_offshore_highvar_ksi = compute_stats(ds, msk)
 
 
     def compute_stats_by_regime_sammy(self, l_files, etuvar, l_files_inputs, regime_type ='all'):
@@ -1014,7 +1040,7 @@ class Benchmark(object):
         rmse_residual_noise_offshore_highvar = self.rmse_residual_noise_offshore_highvar
                 
         data = [[self.filter_name, 
-                 'SSH',
+                 'SSH [m]',
                  rmse_residual_noise_global, 
                  rmse_residual_noise_coastal, 
                  rmse_residual_noise_offshore_lowvar, 
@@ -1023,20 +1049,20 @@ class Benchmark(object):
                  np.round(wavelength_snr1_filter, 1),
                  notebook_name], 
                 [self.filter_name, 
-                 'Geostrophic current',
-                 rmse_residual_noise_global, 
-                 rmse_residual_noise_coastal, 
-                 rmse_residual_noise_offshore_lowvar, 
-                 rmse_residual_noise_offshore_highvar,
+                 'Geostrophic current [m.s$^-1$]',
+                 self.rmse_residual_noise_global_ug, 
+                 self.rmse_residual_noise_coastal_ug, 
+                 self.rmse_residual_noise_offshore_lowvar_ug, 
+                 self.rmse_residual_noise_offshore_highvar_ug,
                  np.round(self.wavelength_snr1_nofilter_ug, 1),
                  np.round(self.wavelength_snr1_filter_ug, 1),
                  notebook_name],
                 [self.filter_name, 
-                 'Relative vorticity',
-                 rmse_residual_noise_global, 
-                 rmse_residual_noise_coastal, 
-                 rmse_residual_noise_offshore_lowvar, 
-                 rmse_residual_noise_offshore_highvar,
+                 'Relative vorticity [s$^-1$]',
+                 self.rmse_residual_noise_global_ksi, 
+                 self.rmse_residual_noise_coastal_ksi, 
+                 self.rmse_residual_noise_offshore_lowvar_ksi, 
+                 self.rmse_residual_noise_offshore_highvar_ksi,
                  np.round(self.wavelength_snr1_nofilter_ksi, 1),
                  np.round(self.wavelength_snr1_filter_ksi, 1),
                  notebook_name]
@@ -1046,10 +1072,10 @@ class Benchmark(object):
         Leaderboard = pd.DataFrame(data, 
                            columns=['Method',
                                     'Field',
-                                    "µ(RMSE global) [m]", 
-                                    "µ(RMSE coastal) [m]", 
-                                    "µ(RMSE offshore lowvar) [m]", 
-                                    "µ(RMSE offshore highvar) [m]", 
+                                    "µ(RMSE global)", 
+                                    "µ(RMSE coastal)", 
+                                    "µ(RMSE offshore lowvar)", 
+                                    "µ(RMSE offshore highvar)", 
                                     'λ(SNR1 before filtering) [km]', 
                                     'λ(SNR1 after filtering) [km]',  
                                     'Reference'])
