@@ -4,34 +4,24 @@ A challenge on the SWOT Karin instrumental error filtering organised by Datlas, 
 
 <img src="figures/DC_SWOT_karin_error_filtering-banner.png" />
 
-
-Intercompare uncorrelated instrument error filtering methods 
-
-Copernicus Marine Service Evolution 21036-COP-INNO SCI
-
-Project:
-Sea Level Innovations and Collaborative Intercomparisons for the Next-Generation products (SLICING)  
-
-Collaborative data challenges for the next-generation sea level anomaly metrics, observation and mapping products  
-
 ## Context & Motivation
 
-The two-dimensional sea level SWOT data are very much expected to be a game changer in many oceanographic applications which will make them an unprecedented L3 product to be distributed. The row SWOT data will however be contaminated by instrumental and geophysical errors (Gauthier et al., 2016 ; Peral and Esteban-Fernandez, 2018). In order to be able to observe front, mesoscale and sub-mesoscale features the SWOT data will require specific processing. Also, these errors are expected to strongly pollute the second derivatives of the SSH data which are used for the computation of geostrophic currents. Hence, being able to remove the SWOT errors will be of significant importance to recover information on 2D surface currents and vertical mixing.  
+The two-dimensional sea level SWOT products are very much expected to be a game changer in many oceanographic applications which will make them an unprecedented L3 product to be distributed. The row SWOT data will however be contaminated by instrumental and geophysical errors (Gauthier et al., 2016 ; Peral and Esteban-Fernandez, 2018). In order to be able to observe front, mesoscale and sub-mesoscale features, the SWOT data will require specific processing. Also, these errors are expected to strongly pollute the first and second derivatives of the SSH data which are used for the computation of geostrophic currents and vorticity. Hence, being able to remove the SWOT errors will be of significant importance to recover information on 2D surface currents and vertical mixing.  
 
-The SWOT errors are expected to generate noises that are both correlated on the swath and spatially uncorrelated. Several past efforts have already investigated methods to remove or reduce the correlated noises from the SWOT data using prior knowledge on the ocean state (e.g. Metref et al., 2019, see Figure 2.4.A), calibration from independent Nadir altimeter data (e.g. Febvre et al., 2021, see Figure 2.4.B) or cross-calibration from SWOT data themselves (on-going CNES-DUACS studies). And other efforts focused on reducing the uncorrelated data (Gomez-Navarro et al., 2018, 2020; Febvre et al., 2021). Yet, so far, no rigorous intercomparison between the recently developed methods has been undertaken and it seems difficult, to this day, to outline the benefits and limitations of favoring one error reduction method from another.  
+The SWOT errors are expected to generate noises that are both correlated on the swath and spatially uncorrelated. Several past efforts have already investigated methods to remove or reduce the correlated noises from the SWOT data using prior knowledge on the ocean state (e.g. Metref et al., 2019, see Figure 2.4.A), calibration from independent Nadir altimeter data (e.g. Febvre et al., 2021, see Figure 2.4.B) or cross-calibration from SWOT data themselves (on-going CNES-DUACS studies). And other efforts focused on reducing the uncorrelated data (Gomez-Navarro et al., 2018, 2020; Febvre et al., 2021). Yet, so far, no rigorous intercomparison between the recently developed methods has been undertaken and it seems difficult, to this day, to outline the benefits and limitations of favoring one error reduction method from another.
 
+It is important to mention that the SWOT science requirement for uncorrelated noise measurement error specifies that KaRin must resolve SSH on wavelength scales up to 15 km based on the 68th percentile of the global wavenumber distribution.
 
-SWOT product and requirement
+**The goal of this Filtering SWOT data challenge is to provide a platform to investigate the most appropriate filtering methods to reduce the <span style="color:red">uncorrelated</span> instrumental (KaRIn) noise from the SWOT data.** 
 
+In practice, the data challenge is in the form of an Observing System Simulation Experiment (OSSE) considering a realistic ocean model simulation (eNATL60) as the true ocean state. The SWOT simulator (Gauthier et al., 2016) was then used to create realistic SWOT data with and without instrumental noise. Then, various filtering methods are tested and compared to the true ocean state.
 
-**The goal of the Filtering SWOT data challenge is to provide a platform to investigate the most appropriate filtering methods to reduce the uncorrelated instrumental (KaRIn) noise from the SWOT data.** 
-
-In practice, the data challenge is in the form of an Observing System Simulation Experiment (OSSE) considering a realistic ocean model simulation (eNATL60) as the true ocean state. The SWOT simulator (Gauthier et al., 2016) was then used to create realistic SWOT data with and without instrumental noise. 
+This data challenge is part of the **Sea Level Innovations and Collaborative Intercomparisons for the Next-Generation products (SLICING)** project, funded by Copernicus Marine Service Evolution (21036-COP-INNO SCI).  
 
 
 ## Data sequence and use
 
-The data challenge is in the form of an Observing System Simulation Experiment (OSSE) considering a realistic ocean model simulation, the NEMO high resolution North Atlantic simulation **NATL60**, as the true ocean state. The SWOT simulator (Gauthier et al., 2016) was then used to create realistic SWOT data with and without instrumental noise. 
+The data challenge is in the form of an Observing System Simulation Experiment (OSSE) considering a realistic ocean model simulation, the NEMO high resolution North Atlantic simulation **eNATL60**, as the true ocean state. The SWOT simulator (Gauthier et al., 2016) was then used to create realistic SWOT data with and without instrumental noise. 
 
 The experiment is performed over one SWOT orbital cycle (cycle 13) which contains 270 passes. All other cycles are available to tune or train the filters.
 
