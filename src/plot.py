@@ -67,8 +67,6 @@ def compare_stats_by_regime(list_of_filename, list_of_label):
     
     ds = xr.concat([xr.open_dataset(filename) for filename in list_of_filename], dim='experiment')
     ds['experiment'] = list_of_label
-    #ds = ds.drop('x')  
-    print(ds)
 
     fig = plt.figure(figsize=(12, 13))
     

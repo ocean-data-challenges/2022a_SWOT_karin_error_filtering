@@ -1,6 +1,9 @@
 import numpy as np
 import hvplot.xarray
 import xarray as xr
+import matplotlib.pylab as plt
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
 
 
 def display_track(ds):
@@ -19,87 +22,209 @@ def display_track(ds):
 
 
 
-def compare_stat(filename_ref, filename_etu):
+def compare_stat(filename_ref, filename_etu, **kwargs):
     
     ds_ref = xr.open_dataset(filename_ref)
+    ref_filter = ds_ref.filter_type
     ds_etu = xr.open_dataset(filename_etu)
+    etu_filter = ds_etu.filter_type
     
     ds = 100*(ds_etu - ds_ref)/ds_ref
+    
+    plt.figure(figsize=(18, 15))
+
         
-    vmin = np.nanpercentile(ds['ssh_mean'], 5)
-    vmax = np.nanpercentile(ds['ssh_mean'], 95)
+    ax = plt.subplot(311, projection=ccrs.PlateCarree())
+    vmin = np.nanpercentile(ds.ssh_rmse, 5)
+    vmax = np.nanpercentile(ds.ssh_rmse, 95)
     vmin = np.maximum(np.abs(vmin), np.abs(vmax))
-    fig1 = (ds['ssh_mean']).hvplot.quadmesh(x='lon', y='lat', clim=(-vmin, vmin), cmap='coolwarm', geo=True, coastline=True, title='ΔSSH residual MEAN [%]').opts(frame_height=400, frame_width=400)
+    ds.ssh_rmse.plot(x='lon', y='lat', vmin=-vmin, vmax=vmin, cmap='bwr', cbar_kwargs={'label': '[%]'}, **kwargs)
+    plt.title('$\Delta$ RMSE SSH field ' + f'{etu_filter} vs {ref_filter}', fontweight='bold')
+    ax.add_feature(cfeature.LAND, zorder=2)
+    ax.coastlines(zorder=2)
 
-    vmin = np.nanpercentile(ds['ssh_variance'], 5)
-    vmax = np.nanpercentile(ds['ssh_variance'], 95)
+    ax = plt.subplot(312, projection=ccrs.PlateCarree())
+    vmin = np.nanpercentile(ds.ug_rmse, 5)
+    vmax = np.nanpercentile(ds.ug_rmse, 95)
     vmin = np.maximum(np.abs(vmin), np.abs(vmax))
-    fig2 = (ds['ssh_variance']).hvplot.quadmesh(x='lon', y='lat', clim=(-vmin, vmin), cmap='coolwarm', geo=True, coastline=True, title='ΔSSH residual VARIANCE [%]').opts(frame_height=400, frame_width=400)
+    ds.ug_rmse.plot(x='lon', y='lat', vmin=-vmin, vmax=vmin, cmap='bwr', cbar_kwargs={'label': '[%]'}, **kwargs)
+    plt.title('$\Delta$ RMSE GEOSTROPPHIC CURRENT field ' + f'{etu_filter} vs {ref_filter}', fontweight='bold')
+    ax.add_feature(cfeature.LAND, zorder=2)
+    ax.coastlines(zorder=2)
+        
+    ax = plt.subplot(313, projection=ccrs.PlateCarree())
+    vmin = np.nanpercentile(ds.ksi_rmse, 5)
+    vmax = np.nanpercentile(ds.ksi_rmse, 95)
+    vmin = np.maximum(np.abs(vmin), np.abs(vmax))
+    ds.ksi_rmse.plot(x='lon', y='lat', vmin=-vmin, vmax=vmin, cmap='bwr', cbar_kwargs={'label': '[%]'}, **kwargs)
+    plt.title('$\Delta$ RMSE Relative vorticity '+ f'{etu_filter} vs {ref_filter}', fontweight='bold')
+    ax.add_feature(cfeature.LAND, zorder=2)
+    ax.coastlines(zorder=2)
+
+    plt.show()
     
-    vmin = np.nanpercentile(ds['ssh_rmse'], 5)
-    vmax = np.nanpercentile(ds['ssh_rmse'], 95)
-    vmin = np.maximum(np.abs(vmin), np.abs(vmax))
-    fig3 = (ds['ssh_rmse']).hvplot.quadmesh(x='lon', y='lat', clim=(-vmin, vmin), cmap='coolwarm', geo=True, coastline=True, title='ΔSSH residual RMSE [%]').opts(frame_height=400, frame_width=400)
-
-    vmin = np.nanpercentile(ds['grad_ssh_across_mean'], 5)
-    vmax = np.nanpercentile(ds['grad_ssh_across_mean'], 95)
-    vmin = np.maximum(np.abs(vmin), np.abs(vmax))
-    fig4 = (ds['grad_ssh_across_mean']).hvplot.quadmesh(x='lon', y='lat', clim=(-vmin, vmin), cmap='coolwarm', geo=True, coastline=True, title='Δgrad_ac SSH residual MEAN [%]').opts(frame_height=400, frame_width=400)
-
-    vmin = np.nanpercentile(ds['grad_ssh_across_variance'], 5)
-    vmax = np.nanpercentile(ds['grad_ssh_across_variance'], 95)
-    vmin = np.maximum(np.abs(vmin), np.abs(vmax))
-    fig5 = (ds['grad_ssh_across_variance']).hvplot.quadmesh(x='lon', y='lat', clim=(-vmin, vmin), cmap='coolwarm', geo=True, coastline=True, title='Δgrad_ac SSH residual VARIANCE [%]').opts(frame_height=400, frame_width=400)
-    
-    vmin = np.nanpercentile(ds['grad_ssh_across_rmse'], 5)
-    vmax = np.nanpercentile(ds['grad_ssh_across_rmse'], 95)
-    vmin = np.maximum(np.abs(vmin), np.abs(vmax))
-    fig6 = (ds['grad_ssh_across_rmse']).hvplot.quadmesh(x='lon', y='lat', clim=(-vmin, vmin), cmap='coolwarm', geo=True, coastline=True, title='Δgrad_ac SSH residual RMSE [%]').opts(frame_height=400, frame_width=400)
-
-    vmin = np.nanpercentile(ds['grad_ssh_along_mean'], 5)
-    vmax = np.nanpercentile(ds['grad_ssh_along_mean'], 95)
-    vmin = np.maximum(np.abs(vmin), np.abs(vmax))
-    fig7 = (ds['grad_ssh_along_mean']).hvplot.quadmesh(x='lon', y='lat', clim=(-vmin, vmin), cmap='coolwarm', geo=True, coastline=True, title='Δgrad_al SSH residual MEAN [%]').opts(frame_height=400, frame_width=400)
-
-    vmin = np.nanpercentile(ds['grad_ssh_along_variance'], 5)
-    vmax = np.nanpercentile(ds['grad_ssh_along_variance'], 95)
-    vmin = np.maximum(np.abs(vmin), np.abs(vmax))
-    fig8 = (ds['grad_ssh_along_variance']).hvplot.quadmesh(x='lon', y='lat', clim=(-vmin, vmin), cmap='coolwarm', geo=True, coastline=True, title='Δgrad_al SSH residual VARIANCE [%]').opts(frame_height=400, frame_width=400)
-    
-    vmin = np.nanpercentile(ds['grad_ssh_along_rmse'], 5)
-    vmax = np.nanpercentile(ds['grad_ssh_along_rmse'], 95)
-    vmin = np.maximum(np.abs(vmin), np.abs(vmax))
-    fig9 = (ds['grad_ssh_along_rmse']).hvplot.quadmesh(x='lon', y='lat', clim=(-vmin, vmin), cmap='coolwarm', geo=True, coastline=True, title='Δgrad_al SSH residual RMSE [%]').opts(frame_height=400, frame_width=400)
-
-    return (fig1 + fig2 + fig3 + fig4 + fig5 + fig6 + fig7 + fig8 + fig9).cols(3)
-    
-    
-def compare_psd(list_of_filename, list_of_label):
+def compare_stats_by_regime(list_of_filename, list_of_label): 
     
     ds = xr.concat([xr.open_dataset(filename) for filename in list_of_filename], dim='experiment')
     ds['experiment'] = list_of_label
+
+    fig = plt.figure(figsize=(12, 13))
     
+    plt.subplot(221)
+    
+    plt.plot(2*ds.num_pixels - 70, ds['std_ac_karin_noise_global'][0, :].values, c='k', lw=2, label='karin_noise')
+    for exp in ds['experiment'].values:
+        ds_sel = ds.where(ds.experiment == exp, drop=True)
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['std_ac_residual_noise_global'].squeeze(), label=f'residual_noise ({exp})')
+    plt.title('GLOBAL', fontweight='bold')
+    plt.ylabel('Height Error [m]')  
+    plt.xlabel('Ground Range [km]')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.ylim(0, 0.03)
+    
+    plt.subplot(222)
+    plt.plot(2*ds.num_pixels - 70, ds['std_ac_karin_noise_coastal'][0, :].values,c='k', lw=2, label='karin_noise')
+    for exp in ds['experiment'].values:
+        ds_sel = ds.where(ds.experiment == exp, drop=True)
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['std_ac_residual_noise_coastal'].squeeze(), label=f'residual_noise ({exp})')
+    plt.title('COASTAL', fontweight='bold')
+    plt.ylabel('Height Error [m]')  
+    plt.xlabel('Ground Range [km]')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.ylim(0, 0.03)
+    
+    plt.subplot(223)
+    plt.plot(2*ds.num_pixels - 70, ds['std_ac_karin_noise_offshore_lowvar'][0, :].values,c='k', lw=2, label='karin_noise_offshore_lowvar')
+    for exp in ds['experiment'].values:
+        ds_sel = ds.where(ds.experiment == exp, drop=True)
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['std_ac_residual_noise_offshore_lowvar'].squeeze(), label=f'residual_noise ({exp})')
+    plt.title('OFFSHORE (> 200km),\n LOW VARIBILITY (< 200cm$^2$)', fontweight='bold')
+    plt.ylabel('Height Error [m]')  
+    plt.xlabel('Ground Range [km]')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.ylim(0, 0.03)
+    
+    plt.subplot(224)
+    plt.plot(2*ds.num_pixels - 70, ds['std_ac_karin_noise_offshore_highvar'][0, :].values,c='k', lw=2, label='karin_noise')
+    for exp in ds['experiment'].values:
+        ds_sel = ds.where(ds.experiment == exp, drop=True)
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['std_ac_residual_noise_offshore_highvar'].squeeze(), label=f'residual_noise ({exp})')
+    plt.title('OFFSHORE (> 200km),\n HIGH VARIBILITY (> 200cm$^2$)', fontweight='bold')
+    plt.ylabel('Height Error [m]')  
+    plt.xlabel('Ground Range [km]')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.ylim(0, 0.03)
+    #plt.axis([0,72,0,0.03])    
+
+    
+    
+
+
+
+def compare_psd(list_of_filename, list_of_label):
+        
+    ds = xr.concat([xr.open_dataset(filename) for filename in list_of_filename], dim='experiment')
+    ds['experiment'] = list_of_label
     ds = ds.assign_coords({'wavelength': 1./ds['wavenumber']})
-        
-    fig1 = ds['psd_ssh_true'].hvplot.line(x='wavelength', label='psd_ssh_true', loglog=True, flip_xaxis=True, grid=True, legend=True, line_width=4, line_color='k')*\
-    ds['psd_ssh_noisy'][0, :].hvplot.line(x='wavelength', label='psd_ssh_noisy', line_color='r', line_width=3)*\
-    ds['psd_ssh_filtered'].hvplot.line(x='wavelength', label='psd_ssh_filtered', line_width=3, by='experiment')*\
-    ds['psd_err'][0, :].hvplot.line(x='wavelength', label='psd_err', line_color='grey', line_width=3).opts(title='PSD', frame_height=500, frame_width=400, xlabel='wavelength [km]', ylabel='PSD [m2/cy/km]')
-        
-    ds['Transfer_function'] = np.sqrt(ds.cross_spectrum_r**2 + ds.cross_spectrum_i**2)/ds.psd_ssh_noisy
-    fig2 = (ds['Transfer_function'].hvplot.line(x='wavelength', logx=True, flip_xaxis=True, ylim=(0., 1), grid=True, label='Transfer function', legend=True, line_width=3, by='experiment')*\
-                (0.5*ds['Transfer_function']/ds['Transfer_function'])[0, :].hvplot.line(x='wavelength', logx=True, flip_xaxis=True, label='Tf=0.5', legend=True, line_width=1, line_color='r')).opts(title='Transfer function', frame_height=500, frame_width=400, xlabel='wavelength [km]', ylabel='Transfer function')
-        
+
+    fig = plt.figure(figsize=(15, 18))
+
+    ax = plt.subplot(321)
+    ds['psd_ssh_true'][0, :].plot(x='wavelength', label='PSD(SSH$_{true}$)', color='k', xscale='log', yscale='log', lw=3)
+    ds['psd_ssh_noisy'][0, :].plot(x='wavelength', label='PSD(SSH$_{noisy}$)', color='r', lw=2)
+    for exp in ds['experiment'].values:
+        (ds['psd_ssh_filtered'].where(ds['experiment']==exp, drop=True)).plot(x='wavelength', label='PSD(SSH$_{filtered}$)' + f'({exp})', lw=2)
+        (ds['psd_err'].where(ds['experiment']==exp, drop=True)).plot(x='wavelength', label='PSD(SSH$_{err}$)' + f'({exp})', lw=2)
+    plt.grid(which='both')
+    plt.legend()
+    plt.xlabel('wavelenght [km]')
+    plt.ylabel('PSD [m.cy$^{-1}$.km$^{-1}$]')
+    ax.invert_xaxis()
+    plt.title('PSD Sea Surface Height')
+
     ds['SNR_filter'] = ds['psd_err']/ds['psd_ssh_true']
     ds['SNR_nofilter'] = ds['psd_err_karin']/ds['psd_ssh_true']
+    ax = plt.subplot(322)
+    for exp in ds['experiment'].values:
+        (ds['SNR_filter'].where(ds['experiment']==exp, drop=True)).plot(x='wavelength', label='PSD(SSH$_{err}$)/PSD(SSH$_{true}$)' + f'({exp})', xscale='log', lw=3)
+        plt.scatter(ds.wavelength_snr1_filter.where(ds['experiment']==exp, drop=True), 1., zorder=4, label="SNR1 AFTER filter" + f'({exp})')
+    ds['SNR_nofilter'][0, :].plot(x='wavelength', label='PSD(Karin$_{noise}$)/PSD(SSH$_{true}$)', color='r', lw=2)
+    (ds['SNR_filter'][0, :]/ds['SNR_filter'][0, :]).plot(x='wavelength', label='SNR=1', color='grey', lw=2)
+    plt.scatter(ds.wavelength_snr1_nofilter[0, :], 1., color='r', zorder=4, label="SNR1 BEFORE filter")
+    plt.grid(which='both')
+    plt.legend()
+    plt.xlabel('wavelenght [km]')
+    plt.ylabel('SNR')
+
+    plt.ylim(0, 2)
+    ax.invert_xaxis()
+    plt.title('SNR Sea Surface Height')
+
+
+    ax = plt.subplot(323)
+    ds['psd_ug_true'][0, :].plot(x='wavelength', label='PSD(Ug$_{true}$)', color='k', xscale='log', yscale='log', lw=3)
+    ds['psd_ug_noisy'][0, :].plot(x='wavelength', label='PSD(Ug$_{noisy}$)', color='r', lw=2)
+    for exp in ds['experiment'].values:
+        (ds['psd_ug_filtered'].where(ds['experiment']==exp, drop=True)).plot(x='wavelength', label='PSD(Ug$_{filtered}$)' + f'({exp})', lw=2)
+        (ds['psd_err_ug'].where(ds['experiment']==exp, drop=True)).plot(x='wavelength', label=f'PSD(err)' + f'({exp})', lw=2)
+    plt.grid(which='both')
+    plt.legend()
+    plt.xlabel('wavelenght [km]')
+    plt.ylabel('PSD [m.s$^{-1}$.cy$^{-1}$.km$^{-1}$]')
+    ax.invert_xaxis()
+    plt.title('PSD Geostrophic current')
+
+    ds['SNR_filter_ug'] = ds['psd_err_ug']/ds['psd_ug_true']
+    ds['SNR_nofilter_ug'] = ds['psd_err_karin_ug']/ds['psd_ug_true']
+    ax = plt.subplot(324)
+    for exp in ds['experiment'].values:
+        (ds['SNR_filter_ug'].where(ds['experiment']==exp, drop=True)).plot(x='wavelength', label='PSD(Ug$_{err}$)/PSD(Ug$_{true}$)' + f'({exp})', xscale='log', lw=3)
+        plt.scatter(ds.wavelength_snr1_filter_ug.where(ds['experiment']==exp, drop=True), 1., zorder=4, label="SNR1 AFTER filter" + f'({exp})')
+    ds['SNR_nofilter_ug'][0, :].plot(x='wavelength', label='PSD(Ug$_{noise}$)/PSD(Ug$_{true}$)', color='r', lw=2)
+    (ds['SNR_filter_ug'][0, :]/ds['SNR_filter_ug'][0, :]).plot(x='wavelength', label='SNR=1', color='grey', lw=2)
+    plt.scatter(ds.wavelength_snr1_nofilter_ug[0, :], 1., color='r', zorder=4, label="SNR1 BEFORE filter")
+    plt.grid(which='both')
+    plt.legend()
+    plt.ylim(0, 2)
+    ax.invert_xaxis()
+    plt.title('SNR Geostrophic current')
+    plt.xlabel('wavelenght [km]')
+    plt.ylabel('SNR')
+
+
+    ax = plt.subplot(325)
+    ds['psd_ksi_true'][0, :].plot(x='wavelength', label='PSD($\zeta_{true}$)', color='k', xscale='log', yscale='log', lw=3)
+    ds['psd_ksi_noisy'][0, :].plot(x='wavelength', label='PSD($\zeta_{noisy}$)', color='r', lw=2)
+    for exp in ds['experiment'].values:
+        (ds['psd_ksi_filtered'].where(ds['experiment']==exp, drop=True)).plot(x='wavelength', label='PSD($\zeta_{filtered}$)' + f'({exp})', lw=2)
+        (ds['psd_err_ksi'].where(ds['experiment']==exp, drop=True)).plot(x='wavelength', label=f'PSD(err)' + f'({exp})', lw=2)
+    plt.grid(which='both')
+    plt.legend()
+    plt.xlabel('wavelenght [km]')
+    plt.ylabel('PSD [s$^{-1}$.cy$^{-1}$.km$^{-1}$]')
+    ax.invert_xaxis()
+    plt.title('PSD Relative vorticity')
+
+    ds['SNR_filter_ksi'] = ds['psd_err_ksi']/ds['psd_ksi_true']
+    ds['SNR_nofilter_ksi'] = ds['psd_err_karin_ksi']/ds['psd_ksi_true']
+    ax = plt.subplot(326)
+    for exp in ds['experiment'].values:
+        (ds['SNR_filter_ksi'].where(ds['experiment']==exp, drop=True)).plot(x='wavelength', label='PSD($\zeta_{err}$)/PSD($\zeta_{true}$)' + f'({exp})', xscale='log', lw=3)
+        plt.scatter(ds.wavelength_snr1_filter_ksi.where(ds['experiment']==exp, drop=True), 1., zorder=4, label="SNR1 AFTER filter" + f'({exp})')
+    ds['SNR_nofilter_ksi'][0, :].plot(x='wavelength', label='PSD($\zeta_{noise}$)/PSD($\zeta_{true}$)', color='r', lw=2)
+    (ds['SNR_filter_ksi'][0, :]/ds['SNR_filter_ksi'][0, :]).plot(x='wavelength', label='SNR=1', color='grey', lw=2)
     
-    fig3 = (
-        ds['SNR_filter'].hvplot.line(x='wavelength', logx=True, flip_xaxis=True, ylim=(0., 2), grid=True, label='SNR filter', legend=True, line_width=3, by='experiment')*\
-        ds['SNR_nofilter'].hvplot.line(x='wavelength', logx=True, flip_xaxis=True, grid=True, label='SNR nofilter', legend=True, line_width=3)*\
-        ds.snr1_filter.hvplot.scatter(x='wavelength_snr1_filter', color='k', by='experiment')*\
-        ds.snr1_filter.hvplot.scatter(x='wavelength_snr1_nofilter', color='k', by='experiment')*\
-        (ds['SNR_filter']/ds['SNR_filter']).hvplot.line(x='wavelength', logx=True, flip_xaxis=True, label='SNR=1', legend=True, line_width=1, line_color='k')
-    ).opts(title='SNR', frame_height=500, frame_width=400, xlabel='wavelength [km]', ylabel='SNR')
-    
-    
-    return (fig1 + fig2+fig3).cols(3)
+    plt.scatter(ds.wavelength_snr1_nofilter_ksi[0, :], 1., color='r', zorder=4, label="SNR1 BEFORE filter")
+    plt.grid(which='both')
+    plt.legend()
+    plt.ylim(0, 2)
+    ax.invert_xaxis()
+    plt.title('SNR Relative vorticity')
+    plt.xlabel('wavelenght [km]')
+    plt.ylabel('SNR')
+        
+    plt.show()
