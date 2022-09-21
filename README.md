@@ -85,6 +85,21 @@ and can be downloaded using:
 | CNN      | Geostrophic current [m.s<sup>-1</sup>]|       0.055  |        0.068  |               0.043   |                 0.051   |                           687.1 |                            9.4 | [demo_benchmark_CNN.ipynb](https://github.com/ocean-data-challenges/2022a_SWOT_karin_error_filtering/blob/main/notebook/demo_benchmark_CNN.ipynb) |
 | CNN      | Relative vorticity [s<sup>-1</sup>]|       0.0010 |        0.0014 |               0.0008 |                 0.0001 |                           817.4 |                           29.6 | [demo_benchmark_CNN.ipynb](https://github.com/ocean-data-challenges/2022a_SWOT_karin_error_filtering/blob/main/notebook/demo_benchmark_CNN.ipynb) |
 
+with:
+
+ `µ(RMSE global)`: averaged root-mean square error over the full domain
+ 
+ `µ(RMSE coastal)`: averaged root-mean square error in coastal region __(distance < 200km from coastine)__
+ 
+ `µ(RMSE offshore lowvar)`: averaged root-mean square error in offshore __(distance > 200km from coastine) and low variability regions ( variance < 200cm<sup>2</sup>)__
+ 
+ `µ(RMSE offshore highvar)`: averaged root-mean square error in offshore __(distance > 200km from coastine) and high variability regions ( variance > 200cm<sup>2</sup>)__
+ 
+ `λ(SNR1 before filtering)`: spatial wavelength where SNR=1 **before** filtering
+ 
+ `λ(SNR1 after filtering)`: spatial wavelength where SNR=1 **after** filtering
+
+
 
 ## Installation
 :computer: _**How to get started ?**_
