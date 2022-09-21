@@ -30,7 +30,7 @@ In no way the targets that are available during the evaluation period should be 
 
 
 <img src="figures/DC_SWOT_Filtering-data_illustration.png" />
-
+<center><em>Fig.: Example of SWOT noisy input products and target fields to be restore with a filtering method (picture from A. Treboutte)</em></center>
 
 
 ## Data format
