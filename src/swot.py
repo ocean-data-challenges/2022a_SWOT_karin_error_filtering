@@ -55,8 +55,8 @@ class SwotTrack(object):
         self.fc = f_coriolis
         
         self.__enrich_dataset(outvar, geos_current)
-        self.__enrich_dataset(outvar + '_x', ref_gx)
-        self.__enrich_dataset(outvar + '_y', ref_gy)
+        self.__enrich_dataset(outvar + '_y', ref_gx)
+        self.__enrich_dataset(outvar + '_x', -ref_gy)
         
         
     def compute_relative_vorticity(self, invar_x, invar_y, outvar):
@@ -108,7 +108,7 @@ class SwotTrack(object):
         vmin = np.nanpercentile(ds['simulated_true_ksi'], 5)
         vmax = np.nanpercentile(ds['simulated_true_ksi'], 95)
         vdata = np.maximum(np.abs(vmin), np.abs(vmax))
-        (ds.simulated_true_ksi*msk).T.plot(vmin=-vdata, vmax=vdata, cmap='BrBG', cbar_kwargs={'label': '[s$^{-1}$]'})
+        (ds.simulated_true_ksi*msk).T.plot(vmin=-vdata, vmax=vdata, cmap='BrBG', cbar_kwargs={'label': '[]'})
         plt.title('TARGET: Relative vorticity from SSH true', fontweight='bold')
         plt.xlabel('[km]')
         plt.ylabel('[km]')
@@ -153,7 +153,7 @@ class SwotTrack(object):
         vmin_ksi = np.nanpercentile(ds['ksi_'+var_name]*msk, 5)
         vmax_ksi = np.nanpercentile(ds['ksi_'+var_name]*msk, 95)
         vdata = np.maximum(np.abs(vmin_ksi), np.abs(vmax_ksi))
-        (ds['ksi_'+var_name]*msk).T.plot(vmin=-vdata, vmax=vdata, cmap='BrBG', cbar_kwargs={'label': '[m.s$^{-1}$]'})
+        (ds['ksi_'+var_name]*msk).T.plot(vmin=-vdata, vmax=vdata, cmap='BrBG', cbar_kwargs={'label': '[]'})
         plt.title('Relative vorticity from Geos. current '+var_name, fontweight='bold')
         plt.xlabel('[km]')
         plt.ylabel('[km]')
