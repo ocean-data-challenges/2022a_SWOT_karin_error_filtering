@@ -4,6 +4,7 @@ import xarray as xr
 import matplotlib.pylab as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
+from .swot import *
 
 
 def display_track(ds):
@@ -228,3 +229,217 @@ def compare_psd(list_of_filename, list_of_label):
     plt.ylabel('SNR')
         
     plt.show()
+    
+    
+    
+def plot_demo_pass(file_ref_input, file_filtered):
+    swt_input = SwotTrack(file_ref_input)
+    swt_input.compute_geos_current('ssh_true', 'true_geos_current')
+    swt_input.compute_relative_vorticity('true_geos_current_x', 'true_geos_current_y', 'true_ksi')
+    swt_input.compute_geos_current('ssh_karin', 'karin_geos_current')
+    swt_input.compute_relative_vorticity('karin_geos_current_x', 'karin_geos_current_y', 'karin_ksi')
+    
+    
+    swt_filtered = SwotTrack(file_filtered)
+    swt_filtered.compute_geos_current('ssh_karin_filt', 'filtered_geos_current')
+    swt_filtered.compute_relative_vorticity('filtered_geos_current_x', 'filtered_geos_current_y', 'filtered_ksi')
+    
+    
+    n_p, n_l = np.meshgrid(swt_input._dset.num_pixels.values,swt_input._dset.num_lines.values)
+    
+    fig, axs = plt.subplots(2, 3,figsize=(10,16))
+    row,col = 0,0
+    ax = axs[row,col]
+    ssh_true = swt_input._dset.ssh_true.values
+    msk = np.isnan(swt_input._dset.ssh_karin)
+    ssh_true[msk] = np.nan
+    vmin = np.nanpercentile(ssh_true, 5)
+    vmax = np.nanpercentile(ssh_true, 95)
+    ax.pcolormesh(n_p,n_l,ssh_true, vmin=vmin, vmax=vmax,cmap='Spectral_r') 
+    ax.title.set_text('True SSH')
+    ax.set_ylim(2000, 3000)
+
+    row,col = 1,0
+    ax = axs[row,col] 
+    pcm =ax.pcolormesh(n_p,n_l,ssh_true, vmin=vmin, vmax=vmax,cmap='Spectral_r') 
+    ax.title.set_text('True SSH')
+    ax.set_ylim(2000, 3000)
+
+    fig.colorbar(pcm, ax=axs[:,col], shrink=0.6,location='left', label='[m]') 
+
+
+    row,col = 0,1
+    ax = axs[row,col]
+    ssh_karin = swt_input._dset.ssh_karin.values
+    ax.pcolormesh(n_p,n_l,ssh_karin,vmin=vmin, vmax=vmax, cmap='Spectral_r') 
+    ax.title.set_text('Noisy karin SSH')
+    ax.set_ylim(2000, 3000)
+
+    row,col = 1,1
+    ax = axs[row,col]
+    ssh_karin_filtered = swt_filtered._dset.ssh_karin_filt.values
+    pcm =ax.pcolormesh(n_p,n_l, ssh_karin_filtered, vmin=vmin, vmax=vmax,cmap='Spectral_r') 
+    ax.title.set_text('Filtered SSH')
+    ax.set_ylim(2000, 3000)
+
+    cb=fig.colorbar(pcm, ax=axs[:,col], shrink=0.6, label='[m]') 
+    cb.remove()
+
+    row,col = 0,2
+    ax = axs[row,col]
+    ssh_diff = ssh_true - ssh_karin
+    vmin = np.nanpercentile(ssh_diff, 5)
+    vmax = np.nanpercentile(ssh_diff, 95)
+    vdata = np.maximum(np.abs(vmin), np.abs(vmax))
+    ax.pcolormesh(n_p,n_l,ssh_diff,vmin=-vdata,vmax=vdata,cmap='bwr') 
+    ax.title.set_text('Karin noise')
+    ax.set_ylim(2000, 3000)
+
+    row,col = 1,2
+    ax = axs[row,col]
+    ssh_diff_filtered = ssh_true-ssh_karin_filtered
+    pcm =ax.pcolormesh(n_p,n_l,ssh_diff_filtered,vmin=-vdata,vmax=vdata,cmap='bwr') 
+    ax.title.set_text('Residual noise')
+    ax.set_ylim(2000, 3000)
+
+    fig.colorbar(pcm, ax=axs[:,col], shrink=0.6, label='[m]') 
+
+
+    plt.subplots_adjust(left=0.25,wspace=0.5,right=0.8) 
+
+    fig.show()
+    
+    
+    
+    
+    
+    fig, axs = plt.subplots(2, 3,figsize=(10,16))
+    row,col = 0,0
+    ax = axs[row,col]
+    ssh_true = swt_input._dset.true_geos_current.values
+    msk = np.isnan(swt_input._dset.ssh_karin)
+    ssh_true[msk] = np.nan
+    vmin = np.nanpercentile(ssh_true, 5)
+    vmax = np.nanpercentile(ssh_true, 95)
+    ax.pcolormesh(n_p,n_l,ssh_true, vmin=vmin, vmax=vmax,cmap='Spectral_r') 
+    ax.title.set_text('True Ug')
+    ax.set_ylim(2000, 3000)
+
+    row,col = 1,0
+    ax = axs[row,col] 
+    pcm =ax.pcolormesh(n_p,n_l,ssh_true, vmin=vmin, vmax=vmax,cmap='Spectral_r') 
+    ax.title.set_text('True Ug')
+    ax.set_ylim(2000, 3000)
+
+    fig.colorbar(pcm, ax=axs[:,col], shrink=0.6,location='left', label='[m.s$^{-1}$]') 
+
+
+    row,col = 0,1
+    ax = axs[row,col]
+    ssh_karin = swt_input._dset.karin_geos_current.values
+    ax.pcolormesh(n_p,n_l,ssh_karin,vmin=vmin, vmax=vmax, cmap='Spectral_r') 
+    ax.title.set_text('Noisy karin Ug')
+    ax.set_ylim(2000, 3000)
+
+    row,col = 1,1
+    ax = axs[row,col]
+    ssh_karin_filtered = swt_filtered._dset.filtered_geos_current.values
+    pcm =ax.pcolormesh(n_p,n_l, ssh_karin_filtered, vmin=vmin, vmax=vmax,cmap='Spectral_r') 
+    ax.title.set_text('Filtered Ug')
+    ax.set_ylim(2000, 3000)
+
+    cb=fig.colorbar(pcm, ax=axs[:,col], shrink=0.6, label='[m.s$^{-1}$]') 
+    cb.remove()
+
+    row,col = 0,2
+    ax = axs[row,col]
+    ssh_diff = ssh_true - ssh_karin
+    vmin = np.nanpercentile(ssh_diff, 5)
+    vmax = np.nanpercentile(ssh_diff, 95)
+    vdata = np.maximum(np.abs(vmin), np.abs(vmax))
+    ax.pcolormesh(n_p,n_l,ssh_diff,vmin=-vdata,vmax=vdata,cmap='bwr') 
+    ax.title.set_text('Karin noise Ug')
+    ax.set_ylim(2000, 3000)
+
+    row,col = 1,2
+    ax = axs[row,col]
+    ssh_diff_filtered = ssh_true-ssh_karin_filtered
+    pcm =ax.pcolormesh(n_p,n_l,ssh_diff_filtered,vmin=-vdata,vmax=vdata,cmap='bwr') 
+    ax.title.set_text('Residual noise Ug')
+    ax.set_ylim(2000, 3000)
+    fig.colorbar(pcm, ax=axs[:,col], shrink=0.6, label='[m.s$^{-1}$]') 
+
+
+    plt.subplots_adjust(left=0.25,wspace=0.5,right=0.8) 
+
+    fig.show()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    fig, axs = plt.subplots(2, 3,figsize=(10,16))
+    row,col = 0,0
+    ax = axs[row,col]
+    ssh_true = swt_input._dset.true_ksi.values
+    msk = np.isnan(swt_input._dset.ssh_karin)
+    ssh_true[msk] = np.nan
+    vmin = np.nanpercentile(ssh_true, 5)
+    vmax = np.nanpercentile(ssh_true, 95)
+    ax.pcolormesh(n_p,n_l,ssh_true, vmin=vmin, vmax=vmax,cmap='Spectral_r') 
+    ax.title.set_text('True vorticity')
+    ax.set_ylim(2000, 3000)
+
+    row,col = 1,0
+    ax = axs[row,col] 
+    pcm =ax.pcolormesh(n_p,n_l,ssh_true, vmin=vmin, vmax=vmax,cmap='Spectral_r') 
+    ax.title.set_text('True vorticity')
+    ax.set_ylim(2000, 3000)
+
+    fig.colorbar(pcm, ax=axs[:,col], shrink=0.6,location='left', label='[]') 
+
+
+    row,col = 0,1
+    ax = axs[row,col]
+    ssh_karin = swt_input._dset.karin_ksi.values
+    ax.pcolormesh(n_p,n_l,ssh_karin,vmin=vmin, vmax=vmax, cmap='Spectral_r') 
+    ax.title.set_text('Noisy karin vorticity')
+    ax.set_ylim(2000, 3000)
+
+    row,col = 1,1
+    ax = axs[row,col]
+    ssh_karin_filtered = swt_filtered._dset.filtered_ksi.values
+    pcm =ax.pcolormesh(n_p,n_l, ssh_karin_filtered, vmin=vmin, vmax=vmax,cmap='Spectral_r') 
+    ax.title.set_text('Filtered vorticity')
+    ax.set_ylim(2000, 3000)
+    
+    cb=fig.colorbar(pcm, ax=axs[:,col], shrink=0.6, label='[]') 
+    cb.remove()
+
+    row,col = 0,2
+    ax = axs[row,col]
+    ssh_diff = ssh_true - ssh_karin
+    vmin = np.nanpercentile(ssh_diff, 5)
+    vmax = np.nanpercentile(ssh_diff, 95)
+    vdata = np.maximum(np.abs(vmin), np.abs(vmax))
+    ax.pcolormesh(n_p,n_l,ssh_diff,vmin=-vdata,vmax=vdata,cmap='bwr') 
+    ax.title.set_text('Karin noise vorticity')
+    ax.set_ylim(2000, 3000)
+    
+    row,col = 1,2
+    ax = axs[row,col]
+    ssh_diff_filtered = ssh_true-ssh_karin_filtered
+    pcm =ax.pcolormesh(n_p,n_l,ssh_diff_filtered,vmin=-vdata,vmax=vdata,cmap='bwr') 
+    ax.title.set_text('Residual noise vorticity')
+    ax.set_ylim(2000, 3000)
+    fig.colorbar(pcm, ax=axs[:,col], shrink=0.6, label='[]') 
+
+
+    plt.subplots_adjust(left=0.25,wspace=0.5,right=0.8) 
+    
+    fig.show()
