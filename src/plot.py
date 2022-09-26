@@ -1,26 +1,9 @@
 import numpy as np
-import hvplot.xarray
 import xarray as xr
 import matplotlib.pylab as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from .swot import *
-
-
-def display_track(ds):
-    vmin = np.nanpercentile(ds['simulated_true_ssh_karin'], 5)
-    vmax = np.nanpercentile(ds['simulated_true_ssh_karin'], 95)
-    fig_ssh_true = ds['simulated_true_ssh_karin'].hvplot.quadmesh(x='longitude', y='latitude', clim=(vmin, vmax), cmap='Spectral_r', rasterize=True, title='True ssh karin')
-    fig_noisy_ssh = ds['simulated_noise_ssh_karin'].hvplot.quadmesh(x='longitude', y='latitude', clim=(vmin, vmax), cmap='Spectral_r', rasterize=True, title='Noisy ssh karin')
-    fig_filtered_ssh = ds['ssh_karin_filt'].hvplot.quadmesh(x='longitude', y='latitude', clim=(vmin, vmax), cmap='Spectral_r', rasterize=True, title='Filtered ssh karin')
-    
-    delta = ds['ssh_karin_filt'] - ds['simulated_true_ssh_karin']
-    vmin_delta = np.nanpercentile(delta.values, 5)
-    vmax_delta = np.nanpercentile(delta.values, 95)
-    fig_delta_ssh_filtered_ssh_true = delta.hvplot.quadmesh(x='longitude', y='latitude', clim=(-np.abs(vmin_delta), np.abs(vmin_delta)), cmap='bwr', rasterize=True, title='Filtered ssh karin - True ssh karin')
-    
-    return (fig_ssh_true + fig_noisy_ssh + fig_filtered_ssh + fig_delta_ssh_filtered_ssh_true).cols(2)
-
 
 
 def compare_stat(filename_ref, filename_etu, **kwargs):
@@ -64,6 +47,7 @@ def compare_stat(filename_ref, filename_etu, **kwargs):
 
     plt.show()
     
+
 def compare_stats_by_regime(list_of_filename, list_of_label): 
     
     ds = xr.concat([xr.open_dataset(filename) for filename in list_of_filename], dim='experiment')
@@ -122,9 +106,6 @@ def compare_stats_by_regime(list_of_filename, list_of_label):
     #plt.axis([0,72,0,0.03])    
 
     
-    
-
-
 
 def compare_psd(list_of_filename, list_of_label):
         
