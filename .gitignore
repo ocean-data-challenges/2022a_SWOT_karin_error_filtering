@@ -1,4 +1,6 @@
 dc_inputs/
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
