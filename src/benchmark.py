@@ -1,17 +1,11 @@
 import numpy as np
 import xarray as xr
-import os
-#import sys
-import glob
 import pyinterp
 from scipy import signal
 from itertools import chain
-import hvplot.xarray
 import pandas as pd
 import warnings
 import matplotlib.pylab as plt
-#sys.path.append('..')
-#from src.swot import *
 warnings.filterwarnings("ignore")
 
 import cartopy.crs as ccrs
@@ -128,26 +122,9 @@ class Benchmark(object):
         """ export des résultats vers un fichier NetCDF """
         to_write = xr.Dataset(
             data_vars=dict(
-                # ssh_mean=(["lat", "lon"], self.stats_dict['ssh'].variable('mean').T),
-                # ssh_variance=(["lat", "lon"], self.stats_dict['ssh'].variable('variance').T),
-                # ssh_count=(["lat", "lon"], self.stats_dict['ssh'].variable('count').T),
-                # ssh_minimum=(["lat", "lon"],self.stats_dict['ssh'].variable('min').T),
-                # ssh_maximum=(["lat", "lon"], self.stats_dict['ssh'].variable('max').T),
                 ssh_rmse=(["lat", "lon"], np.sqrt(self.stats_dict['ssh_rmse'].variable('mean').T)),
                 ug_rmse=(["lat", "lon"], np.sqrt(self.stats_dict['ug_rmse'].variable('mean').T)),
                 ksi_rmse=(["lat", "lon"], np.sqrt(self.stats_dict['ksi_rmse'].variable('mean').T)),
-                # grad_ssh_across_mean=(["lat", "lon"], self.stats_dict['grad_ssh_across'].variable('mean').T),
-                # grad_ssh_across_variance=(["lat", "lon"], self.stats_dict['grad_ssh_across'].variable('variance').T),
-                # grad_ssh_across_count=(["lat", "lon"], self.stats_dict['grad_ssh_across'].variable('count').T),
-                # grad_ssh_across_minimum=(["lat", "lon"], self.stats_dict['grad_ssh_across'].variable('min').T),
-                # grad_ssh_across_maximum=(["lat", "lon"], self.stats_dict['grad_ssh_across'].variable('max').T),
-                # grad_ssh_across_rmse=(["lat", "lon"], np.sqrt(self.stats_dict['grad_ssh_across_rmse'].variable('mean').T)),
-                # grad_ssh_along_mean=(["lat", "lon"], self.stats_dict['grad_ssh_along'].variable('mean').T),
-                # grad_ssh_along_variance=(["lat", "lon"], self.stats_dict['grad_ssh_along'].variable('variance').T),
-                # grad_ssh_along_count=(["lat", "lon"], self.stats_dict['grad_ssh_along'].variable('count').T),
-                # grad_ssh_along_minimum=(["lat", "lon"], self.stats_dict['grad_ssh_along'].variable('min').T),
-                # grad_ssh_along_maximum=(["lat", "lon"], self.stats_dict['grad_ssh_along'].variable('max').T),
-                # grad_ssh_along_rmse=(["lat", "lon"], np.sqrt(self.stats_dict['grad_ssh_along_rmse'].variable('mean').T)),
             ),
             coords=dict(
                 lon=(["lon"], self.stats_dict['ssh'].x),
@@ -175,14 +152,7 @@ class Benchmark(object):
         
         ds = xr.open_dataset(fname)
         
-  
         plt.figure(figsize=(18, 15))
-        # plt.subplots_adjust(left=0.1,
-        #             bottom=0.1, 
-        #             right=0.9, 
-        #             top=0.9, 
-        #             wspace=0.4, 
-        #             hspace=0.4)
         
         ax = plt.subplot(311, projection=ccrs.PlateCarree())
         vmin = np.nanpercentile(ds.ssh_rmse, 5)
@@ -209,50 +179,6 @@ class Benchmark(object):
         ax.coastlines(zorder=2)
 
         plt.show()
-         
-        
-    def plot_stats(self, fname ):
-        
-        import cartopy.crs as ccrs
-        import cartopy.feature as cfeature
-
-        ds = xr.open_dataset(fname) 
-        lon,lat=np.meshgrid(ds.lon,ds.lat) 
-  
-
-        fig = plt.figure(figsize=(18,18))   
-
-        vmin = np.nanpercentile(ds['ssh_rmse'], 5)
-        vmax = np.nanpercentile(ds['ssh_rmse'], 95)
-        ax3 = fig.add_subplot(3,1,1, projection=ccrs.PlateCarree())        
-        plt.scatter(lon,lat,c=ds['ssh_rmse'].values, vmin=0, vmax=vmax, cmap='Reds')
-        plt.colorbar()
-        ax3.title.set_text('SSH residual RMSE') 
-        ax3.set_extent([-100, 45, 5, 69], crs=ccrs.PlateCarree())
-        ax3.add_feature(cfeature.LAND) 
-
-        vmin = np.nanpercentile(ds['grad_ssh_across_rmse'], 5)
-        vmax = np.nanpercentile(ds['grad_ssh_across_rmse'], 95)
-        ax6 = fig.add_subplot(3,1,2, projection=ccrs.PlateCarree())        
-        plt.scatter(lon,lat,c=ds['grad_ssh_across_rmse'].values, vmin=0, vmax=vmax, cmap='Reds')
-        plt.colorbar()
-        ax6.title.set_text('grad_ac SSH residual RMSE') 
-        ax6.set_extent([-100, 45, 5, 69], crs=ccrs.PlateCarree())
-        ax6.add_feature(cfeature.LAND) 
-
-        vmin = np.nanpercentile(ds['grad_ssh_along_rmse'], 5)
-        vmax = np.nanpercentile(ds['grad_ssh_along_rmse'], 95)
-        ax9 = fig.add_subplot(3,1,3, projection=ccrs.PlateCarree())        
-        plt.scatter(lon,lat,c=ds['grad_ssh_along_rmse'].values, vmin=0, vmax=vmax, cmap='Reds')
-        plt.colorbar()
-        ax9.title.set_text('grad_al SSH residual RMSE')
-        ax9.set_extent([-100, 45, 5, 69], crs=ccrs.PlateCarree())
-        ax9.add_feature(cfeature.LAND)
-         
-
-
-        plt.show()
-        
         
         
     def compute_stats_by_regime(self, l_files, etuvar, l_files_inputs, regime_type ='all'):
@@ -428,7 +354,6 @@ class Benchmark(object):
         plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_residual_noise_offshore_lowvar'].values,'g', label='residual_noise_offshore_lowvar')
         plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_residual_noise_offshore_highvar'].values,'k', label='residual_noise_offshore_highvar')
 
-
         plt.plot(2*ds.num_pixels - 70,ds['rmse_ac_karin_noise_global'].values,'b--', lw=2, label='karin_noise_global')
         plt.plot(2*ds.num_pixels - 70,ds['rmse_ac_karin_noise_coastal'].values,'r--', lw=2, label='karin_noise_coastal')
         plt.plot(2*ds.num_pixels - 70,ds['rmse_ac_karin_noise_offshore_lowvar'].values,'g--', lw=2, label='karin_noise_offshore_lowvar')
@@ -438,9 +363,7 @@ class Benchmark(object):
         plt.xlabel('Across-track distance [km]', fontweight='bold')
         plt.ylabel('RMSE [m]', fontweight='bold')
         plt.title('SEA SURFACE HEIGHT', fontweight='bold')
-        
         plt.grid()
-        #plt.axis([0,72,0,0.03])
         
         plt.subplot(222)
         plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_residual_noise_global_ug'].values,'b', label='residual_noise_global')
@@ -458,7 +381,6 @@ class Benchmark(object):
         plt.ylabel('RMSE [m.s$^{-1}$]', fontweight='bold')
         plt.grid()
         
-        
         plt.subplot(223)
         plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_residual_noise_global_ksi'].values,'b', label='residual_noise_global')
         plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_residual_noise_coastal_ksi'].values,'r', label='residual_noise_coastal')
@@ -469,35 +391,11 @@ class Benchmark(object):
         plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_coastal_ksi'].values,'r--', label='karin_noise_coastal')
         plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_offshore_lowvar_ksi'].values,'g--', label='karin_noise_offshore_lowvar')
         plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_offshore_highvar_ksi'].values,'k--', label='karin_noise_offshore_highvar')
-        #plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="upper left", ncol=2)
         plt.title('RELATIVE VORTIVITY', fontweight='bold')
         plt.xlabel('Across-track distance [km]', fontweight='bold')
         plt.ylabel('RMSE []', fontweight='bold')
         plt.grid()
         plt.legend(bbox_to_anchor=(1.02, 0.5, 1, 0.2), loc="upper left", ncol=2)
-        
-        
-        
-        
-        
-        
-        
-        
-  
-    
-        
-    
-    def display_stats_by_regime(self, fname):
-        
-        ds = xr.open_dataset(fname).drop('x')
-        
-        fig1 = ds.std_ac_residual_noise_global.hvplot.line(x='num_pixels', ylim=(0, 0.025), label='residual_noise_global') * ds.std_ac_karin_noise_global.hvplot.line(x='num_pixels', label='karin_noise_global')
-        fig2 = ds.std_ac_residual_noise_coastal.hvplot.line(x='num_pixels', ylim=(0, 0.025),label='residual_noise_coastal') * ds.std_ac_karin_noise_coastal.hvplot.line(x='num_pixels',label='karin_noise_coastal')
-        fig3 = ds.std_ac_residual_noise_offshore_lowvar.hvplot.line(x='num_pixels', ylim=(0, 0.025), label='residual_noise_offshore_lowvar') * ds.std_ac_karin_noise_offshore_lowvar.hvplot.line(x='num_pixels', label='karin_noise_offshore_lowvar')
-        fig4 = ds.std_ac_residual_noise_offshore_highvar.hvplot.line(x='num_pixels', ylim=(0, 0.025), label='residual_noise_offshore_highvar') * ds.std_ac_karin_noise_offshore_highvar.hvplot.line(x='num_pixels', label='karin_noise_offshore_highvar')
-        
-        return (fig1* fig2 *fig3 *fig4).opts(legend_position='right',frame_height=300, frame_width=500) 
-    
           
     
     def compute_along_track_psd(self, l_files, etuvar, l_files_inputs, lengh_scale=512, overlay=0.25, details=False):
@@ -554,15 +452,14 @@ class Benchmark(object):
         
         
         for i, fname in enumerate(l_files):
-            #swt = SwotTrack(fname)
             
             # Filtered field
-            swt = SwotTrack(fname) #._dset
+            swt = SwotTrack(fname)
             swt.compute_geos_current(etuvar, 'filtered_geos_current')
             swt.compute_relative_vorticity('filtered_geos_current_x', 'filtered_geos_current_y', 'filtered_ksi')
             
             # Truth
-            swt_input = SwotTrack(l_files_inputs[i])#._dset
+            swt_input = SwotTrack(l_files_inputs[i])
             swt_input.compute_geos_current('ssh_true', 'true_geos_current')
             swt_input.compute_relative_vorticity('true_geos_current_x', 'true_geos_current_y', 'true_ksi')
             
@@ -571,10 +468,6 @@ class Benchmark(object):
             swt_input.compute_relative_vorticity('simulated_noise_geos_current_x', 'simulated_noise_geos_current_y', 'simulated_noise_ksi')
             # NEED TO CHEK CONSISTENCY BETWEEN Fileterd and thruth if file not sorted
             
-            
-            
-            #swt = xr.open_dataset(fname)
-            #swt_input = xr.open_dataset(l_files_inputs[i])
         
             # parcours des différentes lignes along-track
             for ac_index in swt._dset.num_pixels.values:
@@ -878,67 +771,6 @@ class Benchmark(object):
         plt.ylabel('SNR')
         
         plt.show()
-        
-     
-    
-    def plot_psd(self, fname):
-        
-        ds = xr.open_dataset(fname)
-        
-        ds = ds.assign_coords({'wavelength': 1./ds['wavenumber']})
-
-        plt.figure(figsize=(12,6))    
-        plt.subplot(121)
-        plt.loglog(ds.wavelength.values,ds['psd_ssh_true'].values, label='psd_ssh_true')
-        plt.loglog(ds.wavelength.values,ds['psd_ssh_noisy'].values, label='psd_ssh_noisy')
-        plt.loglog(ds.wavelength.values,ds['psd_ssh_filtered'].values, label='psd_ssh_filtered')
-        plt.loglog(ds.wavelength.values,ds['psd_err'].values, label='psd_err') 
-        plt.legend()
-        plt.xlabel('wavelenght [km]')
-        plt.ylabel('PSD [m2/cy/km]')
-        x=ds.wavelength.values[np.isfinite(ds.wavelength.values)]
-        plt.xlim(max(x), min(x))
-
-        plt.subplot(122)
-        ds['SNR_filter'] = ds['psd_err']/ds['psd_ssh_true']
-        ds['SNR_nofilter'] = ds['psd_err_karin']/ds['psd_ssh_true']
-        plt.semilogx(ds.wavelength.values,ds['SNR_filter'].values,c='#2ca02c', label='SNR_filter')
-        plt.semilogx(ds.wavelength.values,ds['SNR_nofilter'].values,c='#ff7f0e', label='SNR_nofilter')
-        plt.semilogx(ds.wavelength.values,np.ones_like(ds.wavelength.values),c='grey',linestyle='--', label='SNR = 1') 
-        plt.legend()
-        plt.ylim(0,2)
-        plt.xlabel('wavelenght [km]')
-        plt.ylabel('Signal-to-Noise Ratio')
-        x=ds.wavelength.values[np.isfinite(ds.wavelength.values)]
-        plt.xlim(max(x), min(x))
-
-        plt.show()
-    
-    
-    def display_psd_v0(self, fname):
-        ds = xr.open_dataset(fname)
-    
-        ds = ds.assign_coords({'wavelength': 1./ds['wavenumber']})
-    
-        fig1 = ds['psd_ssh_true'].hvplot.line(x='wavelength', label='psd_ssh_true', loglog=True, flip_xaxis=True, grid=True, legend=True, line_width=4, line_color='k')*\
-        ds['psd_ssh_noisy'].hvplot.line(x='wavelength', label='psd_ssh_noisy', line_color='r', line_width=3)*\
-        ds['psd_ssh_filtered'].hvplot.line(x='wavelength', label='psd_ssh_filtered', line_color='b', line_width=3)*\
-        ds['psd_err'].hvplot.line(x='wavelength', label='psd_err', line_color='grey', line_width=3).opts(title='PSD', frame_height=500, frame_width=400, xlabel='wavelength [km]', ylabel='PSD [m2/cy/km]')
-        
-        ds['Transfer_function'] = np.sqrt(ds.cross_spectrum_r**2 + ds.cross_spectrum_i**2)/ds.psd_ssh_noisy
-        fig2 = (ds['Transfer_function'].hvplot.line(x='wavelength', logx=True, flip_xaxis=True, ylim=(0., 1), grid=True, label='Transfer function', legend=True, line_width=3, color='b')*\
-                (0.5*ds['Transfer_function']/ds['Transfer_function']).hvplot.line(x='wavelength', logx=True, flip_xaxis=True, label='Tf=0.5', legend=True, line_width=1, line_color='r')).opts(title='Transfer function', frame_height=500, frame_width=400, xlabel='wavelength [km]', ylabel='Transfer function')
-        
-        ds['SNR_filter'] = ds['psd_err']/ds['psd_ssh_true']
-        ds['SNR_nofilter'] = ds['psd_err_karin']/ds['psd_ssh_true']
-        fig3 = (ds['SNR_filter'].hvplot.line(x='wavelength', logx=True, flip_xaxis=True, ylim=(-0.1, 2), grid=True, label='SNR filter', legend=True, line_width=3, color='b')*\
-                ds['SNR_nofilter'].hvplot.line(x='wavelength', logx=True, flip_xaxis=True, grid=True, label='SNR nofilter', legend=True, line_width=3, color='r')*\
-        (ds['SNR_filter']/ds['SNR_filter']).hvplot.line(x='wavelength', logx=True, flip_xaxis=True, label='SNR=1', legend=True, line_width=1, line_color='k')*\
-                                         ds.hvplot.scatter(x='wavelength_snr1_filter', y='snr1_filter', color='k')*\
-               ds.hvplot.scatter(x='wavelength_snr1_nofilter', y='snr1_filter', color='k')).opts(title='SNR', frame_height=500, frame_width=400, xlabel='wavelength [km]', ylabel='SNR')
-    
-    
-        return (fig1 + fig2 + fig3).cols(3)
     
     
     def summary(self, notebook_name):

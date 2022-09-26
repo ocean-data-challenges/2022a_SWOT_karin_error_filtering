@@ -1,7 +1,7 @@
 import xarray as xr
-import hvplot.xarray
 import numpy as np
 import sys
+import pyinterp
 import matplotlib.pylab as plt
 sys.path.append('..')
 from src.filters_bidim import median_filter, lanczos_filter, loess_filter, gaussian_filter, boxcar_filter, lee_filter
@@ -21,7 +21,6 @@ class SwotTrack(object):
             raise Exception('either fname or dset should be provided')
 
         self._nadir_mask = None
-        
         
     
     def compute_geos_current(self, invar, outvar):
@@ -451,7 +450,7 @@ class SwotTrack(object):
         at = pyinterp.Axis(self.x_at)
         ac = pyinterp.Axis(self.x_ac)
         grid = pyinterp.grid.Grid2D(at,ac,ssha)
-        has_converged, filled = gauss_seidel(grid)
+        has_converged, filled = pyinterp.fill.gauss_seidel(grid)
 
         if has_converged:
             self.dset[invar][:] = filled
