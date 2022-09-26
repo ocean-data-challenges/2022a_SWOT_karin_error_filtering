@@ -86,8 +86,8 @@ and can be downloaded using:
 | GOMEZ    | Relative vorticity []|       1.671 |        2.569 |                0.871 |                0.329 |                          812.3 | [demo_benchmark_GOMEZ.ipynb](https://github.com/ocean-data-challenges/2022a_SWOT_karin_error_filtering/blob/main/notebook/demo_benchmark_GOMEZ.ipynb) |
 | | | | | | | | | |
 | CNN      | Sea Surface Height [m]|           **0.002** |            **0.002** |                    **0.002** |                     **0.003** |                           **10.5** | [demo_benchmark_CNN.ipynb](https://github.com/ocean-data-challenges/2022a_SWOT_karin_error_filtering/blob/main/notebook/demo_benchmark_CNN.ipynb) |
-| CNN      | Geostrophic current [m.s<sup>-1</sup>]|       **0.055**  |        **0.068**  |               **0.043**   |                 **0.051**   |                           ***9.4** | [demo_benchmark_CNN.ipynb](https://github.com/ocean-data-challenges/2022a_SWOT_karin_error_filtering/blob/main/notebook/demo_benchmark_CNN.ipynb) |
-| CNN      | Relative vorticity []|       0.0010 |        0.0014 |               0.0008 |                 0.0001 |                           **29.6** | [demo_benchmark_CNN.ipynb](https://github.com/ocean-data-challenges/2022a_SWOT_karin_error_filtering/blob/main/notebook/demo_benchmark_CNN.ipynb) |
+| CNN      | Geostrophic current [m.s<sup>-1</sup>]|       **0.055**  |        **0.068**  |               **0.043**   |                 **0.051**   |                           **9.4** | [demo_benchmark_CNN.ipynb](https://github.com/ocean-data-challenges/2022a_SWOT_karin_error_filtering/blob/main/notebook/demo_benchmark_CNN.ipynb) |
+| CNN      | Relative vorticity []|       0.637 |        0.881 |               0.475 |                 0.303 |                           **15.4** | [demo_benchmark_CNN.ipynb](https://github.com/ocean-data-challenges/2022a_SWOT_karin_error_filtering/blob/main/notebook/demo_benchmark_CNN.ipynb) |
 
 with:
 
@@ -99,9 +99,7 @@ with:
  
  `µ(RMSE offshore highvar)`: averaged root-mean square error in offshore __(distance > 200km from coastine) and high variability regions ( variance > 200cm<sup>2</sup>)__
  
- `λ(SNR1 before filtering)`: spatial wavelength where SNR=1 **before** filtering
- 
- `λ(SNR1 after filtering)`: spatial wavelength where SNR=1 **after** filtering
+ `λ(SNR1)`: spatial wavelength where SNR=1
 
 
 
