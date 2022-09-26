@@ -52,9 +52,28 @@ class SwotTrack(object):
         ref_gx, ref_gy = gravity/f_coriolis*np.gradient(ds[invar], dx, edge_order=2)
         geos_current = np.sqrt(ref_gx**2 + ref_gy**2)
         
-        self.__enrich_dataset(outvar, geos_current)
+        self.fc = f_coriolis
         
-    
+        self.__enrich_dataset(outvar, geos_current)
+        self.__enrich_dataset(outvar + '_y', ref_gx)
+        self.__enrich_dataset(outvar + '_x', -ref_gy)
+        
+        
+    def compute_relative_vorticity(self, invar_x, invar_y, outvar):
+        
+        ds = self._dset
+        
+        dx = 2000 # m
+        dy = 2000 # m
+        
+        du_dx, du_dy = np.gradient(ds[invar_x], dx, edge_order=2)
+        dv_dx, dv_dy = np.gradient(ds[invar_y], dx, edge_order=2)
+        
+        ksi = (dv_dx - du_dy)/self.fc
+        
+        self.__enrich_dataset(outvar, ksi)
+        
+        
     def display_demo_target(self):
         
         ds = self._dset
@@ -66,21 +85,84 @@ class SwotTrack(object):
         vmin = np.nanpercentile(ds['simulated_true_ssh_karin'], 5)
         vmax = np.nanpercentile(ds['simulated_true_ssh_karin'], 95)
         
-        plt.figure(figsize=(22, 3))
-        plt.subplot(121)
+        plt.figure(figsize=(10, 10))
+        plt.subplots_adjust(left=0.1,
+                    bottom=0.1, 
+                    right=0.9, 
+                    top=0.9, 
+                    wspace=0.4, 
+                    hspace=0.4)
+        plt.subplot(311)
         (ds.simulated_true_ssh_karin*msk).T.plot(vmin=vmin, vmax=vmax, cmap='Spectral_r', cbar_kwargs={'label': '[m]'})
         plt.title('TARGET: SSH true', fontweight='bold')
         plt.xlabel('[km]')
         plt.ylabel('[km]')
-        #plt.xlim(2400, 3000)
-        plt.subplot(122)
+        
+        plt.subplot(312)
         (ds.simulated_true_geos_current*msk).T.plot(vmin=0, vmax=0.5, cmap='Blues_r', cbar_kwargs={'label': '[m.s$^{-1}$]'})
         plt.title('TARGET: Geos. current from SSH true', fontweight='bold')
+        plt.xlabel('[km]')
+        plt.ylabel('[km]')
+        
+        plt.subplot(313)
+        vmin = np.nanpercentile(ds['simulated_true_ksi'], 5)
+        vmax = np.nanpercentile(ds['simulated_true_ksi'], 95)
+        vdata = np.maximum(np.abs(vmin), np.abs(vmax))
+        (ds.simulated_true_ksi*msk).T.plot(vmin=-vdata, vmax=vdata, cmap='BrBG', cbar_kwargs={'label': '[]'})
+        plt.title('TARGET: Relative vorticity from SSH true', fontweight='bold')
+        plt.xlabel('[km]')
+        plt.ylabel('[km]')
+        
+        
+        plt.show()
+        
+
+    def display_demo(self, var_name='karin',msk=None, vmin=None, vmax=None):
+        
+        ds = self._dset
+        ds = ds.isel(num_lines=slice(2400, 3000), drop=True)
+        ds['num_lines'] = 2*(ds['num_lines']-ds['num_lines'][0])
+        ds['num_pixels'] = 2*ds['num_pixels']
+        
+        if msk is None:
+            msk = ds['ssh_'+var_name]/ds['ssh_'+var_name]
+        if vmin is None:
+            vmin = np.nanpercentile(ds['ssh_'+var_name], 5)
+        if vmax is None:
+            vmax = np.nanpercentile(ds['ssh_'+var_name], 95)
+        
+        plt.figure(figsize=(10, 10))
+        plt.subplots_adjust(left=0.1,
+                    bottom=0.1, 
+                    right=0.9, 
+                    top=0.9, 
+                    wspace=0.4, 
+                    hspace=0.4)
+        plt.subplot(311)
+        (ds['ssh_'+var_name]*msk).T.plot(vmin=vmin, vmax=vmax, cmap='Spectral_r', cbar_kwargs={'label': '[m]'})
+        plt.title('SSH '+var_name, fontweight='bold')
+        plt.xlabel('[km]')
+        plt.ylabel('[km]')
+        #plt.xlim(2400, 3000)
+        plt.subplot(312)
+        (ds['geos_current_'+var_name]*msk).T.plot(vmin=0, vmax=0.5, cmap='Blues_r', cbar_kwargs={'label': '[m.s$^{-1}$]'})
+        plt.title('Geos. current from SSH '+var_name, fontweight='bold')
+        plt.xlabel('[km]')
+        plt.ylabel('[km]')
+        plt.subplot(313)
+        vmin_ksi = np.nanpercentile(ds['ksi_'+var_name]*msk, 5)
+        vmax_ksi = np.nanpercentile(ds['ksi_'+var_name]*msk, 95)
+        vdata = np.maximum(np.abs(vmin_ksi), np.abs(vmax_ksi))
+        (ds['ksi_'+var_name]*msk).T.plot(vmin=-vdata, vmax=vdata, cmap='BrBG', cbar_kwargs={'label': '[]'})
+        plt.title('Relative vorticity from Geos. current '+var_name, fontweight='bold')
         plt.xlabel('[km]')
         plt.ylabel('[km]')
         #plt.xlim(2400, 3000)
         
         plt.show()
+        
+        return msk,vmin, vmax
+        
         
     
     def display_demo_input(self):
@@ -94,19 +176,34 @@ class SwotTrack(object):
         vmin = np.nanpercentile(ds['simulated_true_ssh_karin'], 5)
         vmax = np.nanpercentile(ds['simulated_true_ssh_karin'], 95)
         
-        plt.figure(figsize=(22, 3))
-        plt.subplot(121)
+        plt.figure(figsize=(10, 10))
+        plt.subplots_adjust(left=0.1,
+                    bottom=0.1, 
+                    right=0.9, 
+                    top=0.9, 
+                    wspace=0.4, 
+                    hspace=0.4)
+        plt.subplot(311)
         ds.simulated_noise_ssh_karin.T.plot(vmin=vmin, vmax=vmax, cmap='Spectral_r', cbar_kwargs={'label': '[m]'})
         plt.title('INPUT: SSH true + KaRin noise', fontweight='bold')
         plt.xlabel('[km]')
         plt.ylabel('[km]')
-        #plt.xlim(2400, 3000)
-        plt.subplot(122)
+
+        plt.subplot(312)
         ds.simulated_noisy_geos_current.T.plot(vmin=0, vmax=0.5, cmap='Blues_r', cbar_kwargs={'label': '[m.s$^{-1}$]'})
         plt.title('Geos. current from SSH true + KaRin noise', fontweight='bold')
         plt.xlabel('[km]')
         plt.ylabel('[km]')
-        #plt.xlim(2400, 3000)
+        
+        plt.subplot(313)
+        vmin = np.nanpercentile(ds['simulated_true_ksi'], 5)
+        vmax = np.nanpercentile(ds['simulated_true_ksi'], 95)
+        vdata = np.maximum(np.abs(vmin), np.abs(vmax))
+        (ds.simulated_noisy_ksi*msk).T.plot(vmin=-vdata, vmax=vdata, cmap='BrBG', cbar_kwargs={'label': '[s$^{-1}$]'})
+        plt.title('TARGET: Relative vorticity from SSH true', fontweight='bold')
+        plt.xlabel('[km]')
+        plt.ylabel('[km]')
+
         
         plt.show()
         
@@ -183,6 +280,54 @@ class SwotTrack(object):
         
         plt.show()
         
+    
+        
+        
+    def plot_track(self,filtered_var_name,swottrack_input):
+        
+        ds = self._dset
+        ds0 = swottrack_input._dset 
+        
+        vmin = np.nanpercentile(ds0['ssh_karin'], 5)
+        vmax = np.nanpercentile(ds0['ssh_karin'], 95)
+         
+        
+        fig = plt.figure(figsize=(18,12))
+        ax1 = fig.add_subplot(2,3,1)        
+        plt.scatter(ds0.longitude,ds0.latitude,c=ds0['ssh_true'].values, vmin= vmin, vmax= vmax, cmap='Spectral_r')
+        plt.colorbar()
+        ax1.title.set_text('True ssh')
+                   
+        ax2 = fig.add_subplot(2,3,2)        
+        plt.scatter(ds0.longitude,ds0.latitude,c=ds0['ssh_karin'].values, vmin= vmin, vmax= vmax, cmap='Spectral_r')
+        plt.colorbar()
+        ax2.title.set_text('Noisy ssh karin')
+                   
+        ax3 = fig.add_subplot(2,3,3)        
+        plt.scatter(ds.longitude,ds.latitude,c=ds[filtered_var_name].values, vmin= vmin, vmax= vmax, cmap='Spectral_r')
+        plt.colorbar()
+        ax3.title.set_text('Filtered ssh karin')
+         
+    
+        delta0 = ds0['ssh_karin'] - ds0['ssh_true']
+        delta = ds[filtered_var_name] - ds0['ssh_true']
+        
+        vmin_delta = np.nanpercentile(delta.values, 5)
+        vmax_delta = np.nanpercentile(delta.values, 95)
+                   
+        ax5 = fig.add_subplot(2,3,5)        
+        plt.scatter(ds0.longitude,ds0.latitude,c=delta0, vmin= vmin_delta, vmax= vmax_delta, cmap='bwr')
+        plt.colorbar()
+        ax5.title.set_text('Karin noise')
+                   
+        ax6 = fig.add_subplot(2,3,6)        
+        plt.scatter(ds.longitude,ds.latitude,c=delta, vmin= vmin_delta, vmax= vmax_delta, cmap='bwr')
+        plt.colorbar()
+        ax6.title.set_text('Filtered ssh karin - True ssh karin')
+                   
+                   
+        plt.show()
+        
         
     def display_track(self):
         
@@ -200,6 +345,16 @@ class SwotTrack(object):
         fig_delta_ssh_filtered_ssh_true = delta.hvplot.quadmesh(x='longitude', y='latitude', clim=(-np.abs(vmin_delta), np.abs(vmin_delta)), cmap='bwr', rasterize=True, title='Filtered ssh karin - True ssh karin')
     
         return (fig_ssh_true + fig_noisy_ssh + fig_filtered_ssh + fig_delta_ssh_filtered_ssh_true).cols(2)
+
+        
+    def apply_your_own_filter(self,thefilter,invar,outvar,**kwargs):
+        """ apply median filter, enrich dataset inplace """
+        self.__check_var_exist(invar)
+        if outvar in self._dset.data_vars:
+            self._dset = self._dset.drop(outvar)
+        ssha = self.dset[invar].values
+        ssha_f = thefilter(ssha, **kwargs)
+        self.__enrich_dataset(outvar, ssha_f)
 
         
     def apply_median_filter(self, invar, size, outvar):
