@@ -52,15 +52,15 @@ def compare_stats_by_regime(list_of_filename, list_of_label):
     
     ds = xr.concat([xr.open_dataset(filename) for filename in list_of_filename], dim='experiment')
     ds['experiment'] = list_of_label
-
+    
     fig = plt.figure(figsize=(12, 13))
     
     plt.subplot(221)
     
-    plt.plot(2*ds.num_pixels - 70, ds['std_ac_karin_noise_global'][0, :].values, c='k', lw=2, label='karin_noise')
+    plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_global'][0, :].values, c='k', lw=2, label='karin_noise')
     for exp in ds['experiment'].values:
         ds_sel = ds.where(ds.experiment == exp, drop=True)
-        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['std_ac_residual_noise_global'].squeeze(), label=f'residual_noise ({exp})')
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['rmse_ac_residual_noise_global'].squeeze(), label=f'residual_noise ({exp})')
     plt.title('GLOBAL', fontweight='bold')
     plt.ylabel('Height Error [m]')  
     plt.xlabel('Ground Range [km]')
@@ -69,10 +69,10 @@ def compare_stats_by_regime(list_of_filename, list_of_label):
     plt.ylim(0, 0.03)
     
     plt.subplot(222)
-    plt.plot(2*ds.num_pixels - 70, ds['std_ac_karin_noise_coastal'][0, :].values,c='k', lw=2, label='karin_noise')
+    plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_coastal'][0, :].values,c='k', lw=2, label='karin_noise')
     for exp in ds['experiment'].values:
         ds_sel = ds.where(ds.experiment == exp, drop=True)
-        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['std_ac_residual_noise_coastal'].squeeze(), label=f'residual_noise ({exp})')
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['rmse_ac_residual_noise_coastal'].squeeze(), label=f'residual_noise ({exp})')
     plt.title('COASTAL', fontweight='bold')
     plt.ylabel('Height Error [m]')  
     plt.xlabel('Ground Range [km]')
@@ -81,10 +81,10 @@ def compare_stats_by_regime(list_of_filename, list_of_label):
     plt.ylim(0, 0.03)
     
     plt.subplot(223)
-    plt.plot(2*ds.num_pixels - 70, ds['std_ac_karin_noise_offshore_lowvar'][0, :].values,c='k', lw=2, label='karin_noise_offshore_lowvar')
+    plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_offshore_lowvar'][0, :].values,c='k', lw=2, label='karin_noise_offshore_lowvar')
     for exp in ds['experiment'].values:
         ds_sel = ds.where(ds.experiment == exp, drop=True)
-        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['std_ac_residual_noise_offshore_lowvar'].squeeze(), label=f'residual_noise ({exp})')
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['rmse_ac_residual_noise_offshore_lowvar'].squeeze(), label=f'residual_noise ({exp})')
     plt.title('OFFSHORE (> 200km),\n LOW VARIBILITY (< 200cm$^2$)', fontweight='bold')
     plt.ylabel('Height Error [m]')  
     plt.xlabel('Ground Range [km]')
@@ -93,17 +93,123 @@ def compare_stats_by_regime(list_of_filename, list_of_label):
     plt.ylim(0, 0.03)
     
     plt.subplot(224)
-    plt.plot(2*ds.num_pixels - 70, ds['std_ac_karin_noise_offshore_highvar'][0, :].values,c='k', lw=2, label='karin_noise')
+    plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_offshore_highvar'][0, :].values,c='k', lw=2, label='karin_noise')
     for exp in ds['experiment'].values:
         ds_sel = ds.where(ds.experiment == exp, drop=True)
-        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['std_ac_residual_noise_offshore_highvar'].squeeze(), label=f'residual_noise ({exp})')
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['rmse_ac_residual_noise_offshore_highvar'].squeeze(), label=f'residual_noise ({exp})')
     plt.title('OFFSHORE (> 200km),\n HIGH VARIBILITY (> 200cm$^2$)', fontweight='bold')
     plt.ylabel('Height Error [m]')  
     plt.xlabel('Ground Range [km]')
     plt.legend(loc='best')
     plt.grid()
     plt.ylim(0, 0.03)
-    #plt.axis([0,72,0,0.03])    
+    fig.show()   
+
+
+    fig = plt.figure(figsize=(12, 13))
+    
+    plt.subplot(221)
+    
+    plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_global_ug'][0, :].values, c='k', lw=2, label='karin_noise')
+    for exp in ds['experiment'].values:
+        ds_sel = ds.where(ds.experiment == exp, drop=True)
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['rmse_ac_residual_noise_global_ug'].squeeze(), label=f'residual_noise ({exp})')
+    plt.title('GLOBAL', fontweight='bold')
+    plt.ylabel('Geost. current Error [m.s$^{-1}$]')  
+    plt.xlabel('Ground Range [km]')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.ylim(0, 2.)
+    
+    plt.subplot(222)
+    plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_coastal_ug'][0, :].values,c='k', lw=2, label='karin_noise')
+    for exp in ds['experiment'].values:
+        ds_sel = ds.where(ds.experiment == exp, drop=True)
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['rmse_ac_residual_noise_coastal_ug'].squeeze(), label=f'residual_noise ({exp})')
+    plt.title('COASTAL', fontweight='bold')
+    plt.ylabel('Geost. current Error [m.s$^{-1}$]')  
+    plt.xlabel('Ground Range [km]')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.ylim(0, 2.)
+    
+    plt.subplot(223)
+    plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_offshore_lowvar_ug'][0, :].values,c='k', lw=2, label='karin_noise_offshore_lowvar')
+    for exp in ds['experiment'].values:
+        ds_sel = ds.where(ds.experiment == exp, drop=True)
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['rmse_ac_residual_noise_offshore_lowvar_ug'].squeeze(), label=f'residual_noise ({exp})')
+    plt.title('OFFSHORE (> 200km),\n LOW VARIBILITY (< 200cm$^2$)', fontweight='bold')
+    plt.ylabel('Geost. current Error [m.s$^{-1}$]')  
+    plt.xlabel('Ground Range [km]')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.ylim(0, 2.)
+    
+    plt.subplot(224)
+    plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_offshore_highvar_ug'][0, :].values,c='k', lw=2, label='karin_noise')
+    for exp in ds['experiment'].values:
+        ds_sel = ds.where(ds.experiment == exp, drop=True)
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['rmse_ac_residual_noise_offshore_highvar_ug'].squeeze(), label=f'residual_noise ({exp})')
+    plt.title('OFFSHORE (> 200km),\n HIGH VARIBILITY (> 200cm$^2$)', fontweight='bold')
+    plt.ylabel('Geost. current Error [m.s$^{-1}$]')  
+    plt.xlabel('Ground Range [km]')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.ylim(0, 2.)
+    fig.show()
+
+
+    fig = plt.figure(figsize=(12, 13))
+    
+    plt.subplot(221)
+    
+    plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_global_ksi'][0, :].values, c='k', lw=2, label='karin_noise')
+    for exp in ds['experiment'].values:
+        ds_sel = ds.where(ds.experiment == exp, drop=True)
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['rmse_ac_residual_noise_global_ksi'].squeeze(), label=f'residual_noise ({exp})')
+    plt.title('GLOBAL', fontweight='bold')
+    plt.ylabel('Relative vorticity Error []')  
+    plt.xlabel('Ground Range [km]')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.ylim(0, 35)
+    
+    plt.subplot(222)
+    plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_coastal_ksi'][0, :].values,c='k', lw=2, label='karin_noise')
+    for exp in ds['experiment'].values:
+        ds_sel = ds.where(ds.experiment == exp, drop=True)
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['rmse_ac_residual_noise_coastal_ksi'].squeeze(), label=f'residual_noise ({exp})')
+    plt.title('COASTAL', fontweight='bold')
+    plt.ylabel('Relative vorticity Error []')  
+    plt.xlabel('Ground Range [km]')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.ylim(0, 35)
+    
+    plt.subplot(223)
+    plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_offshore_lowvar_ksi'][0, :].values,c='k', lw=2, label='karin_noise_offshore_lowvar')
+    for exp in ds['experiment'].values:
+        ds_sel = ds.where(ds.experiment == exp, drop=True)
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['rmse_ac_residual_noise_offshore_lowvar_ksi'].squeeze(), label=f'residual_noise ({exp})')
+    plt.title('OFFSHORE (> 200km),\n LOW VARIBILITY (< 200cm$^2$)', fontweight='bold')
+    plt.ylabel('Relative vorticity Error []')  
+    plt.xlabel('Ground Range [km]')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.ylim(0, 35)
+    
+    plt.subplot(224)
+    plt.plot(2*ds.num_pixels - 70, ds['rmse_ac_karin_noise_offshore_highvar_ksi'][0, :].values,c='k', lw=2, label='karin_noise')
+    for exp in ds['experiment'].values:
+        ds_sel = ds.where(ds.experiment == exp, drop=True)
+        plt.plot(2*ds_sel.num_pixels - 70, ds_sel['rmse_ac_residual_noise_offshore_highvar_ug'].squeeze(), label=f'residual_noise ({exp})')
+    plt.title('OFFSHORE (> 200km),\n HIGH VARIBILITY (> 200cm$^2$)', fontweight='bold')
+    plt.ylabel('Relative vorticity Error []')  
+    plt.xlabel('Ground Range [km]')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.ylim(0, 35)
+    fig.show()   
 
     
 
@@ -199,8 +305,7 @@ def compare_psd(list_of_filename, list_of_label):
         plt.scatter(ds.wavelength_snr1_filter_ksi.where(ds['experiment']==exp, drop=True), 1., zorder=4, label="SNR1 AFTER filter" + f'({exp})')
     ds['SNR_nofilter_ksi'][0, :].plot(x='wavelength', label='PSD($\zeta_{noise}$)/PSD($\zeta_{true}$)', color='r', lw=2)
     (ds['SNR_filter_ksi'][0, :]/ds['SNR_filter_ksi'][0, :]).plot(x='wavelength', label='SNR=1', color='grey', lw=2)
-    
-    plt.scatter(ds.wavelength_snr1_nofilter_ksi[0, :], 1., color='r', zorder=4, label="SNR1 BEFORE filter")
+    plt.scatter(ds.wavelength_snr1_nofilter_ksi, 1., color='r', zorder=4, label="SNR1 BEFORE filter")
     plt.grid(which='both')
     plt.legend()
     plt.ylim(0, 2)
