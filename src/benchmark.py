@@ -691,7 +691,7 @@ class Benchmark(object):
         plt.grid(which='both')
         plt.legend()
         plt.xlabel('wavelenght [km]')
-        plt.ylabel('PSD [m.cy$^{-1}$.km$^{-1}$]')
+        plt.ylabel('PSD [m$^2$.cy$^{-1}$.km$^{-1}$]')
         ax.invert_xaxis()
         plt.title('PSD Sea Surface Height')
 
@@ -721,7 +721,7 @@ class Benchmark(object):
         plt.grid(which='both')
         plt.legend()
         plt.xlabel('wavelenght [km]')
-        plt.ylabel('PSD [m.s$^{-1}$.cy$^{-1}$.km$^{-1}$]')
+        plt.ylabel('PSD [m$^2$.s$^{-2}$.cy$^{-1}$.km$^{-1}$]')
         ax.invert_xaxis()
         plt.title('PSD Geostrophic current')
 
@@ -750,7 +750,7 @@ class Benchmark(object):
         plt.grid(which='both')
         plt.legend()
         plt.xlabel('wavelenght [km]')
-        plt.ylabel('PSD [s$^{-1}$.cy$^{-1}$.km$^{-1}$]')
+        plt.ylabel('PSD [cy$^{-1}$.km$^{-1}$]')
         ax.invert_xaxis()
         plt.title('PSD Relative vorticity')
 
