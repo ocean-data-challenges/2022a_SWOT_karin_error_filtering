@@ -473,7 +473,7 @@ class Benchmark(object):
             for ac_index in swt._dset.num_pixels.values:
                 # extraction des lon/lat/ssh
                 lon = swt._dset.longitude.values[:,ac_index]
-                lat = swt._dset.longitude.values[:,ac_index]
+                lat = swt._dset.latitude.values[:,ac_index]
                 
                 ssh_true = swt_input._dset['ssh_true'].values[:,ac_index]
                 ssh_noisy = swt_input._dset['ssh_karin'].values[:,ac_index]
