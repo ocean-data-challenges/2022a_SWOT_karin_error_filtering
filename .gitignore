@@ -1,7 +1,10 @@
 dc_inputs/
 results/
 inputs/
+myresults/
+myinputs/
 dev/
+src/__pycache__/
 */*.nc
 
 .ipynb_checkpoints
