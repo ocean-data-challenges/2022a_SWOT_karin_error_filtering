@@ -1,4 +1,9 @@
 dc_inputs/
+results/
+inputs/
+dev/
+*/*.nc
+
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
 
