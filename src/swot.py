@@ -2,10 +2,11 @@ import xarray as xr
 import numpy as np
 import sys
 import pyinterp
+import pyinterp.fill
 import matplotlib.pylab as plt
-sys.path.append('..')
+sys.path.append('..') 
 from src.filters_bidim import median_filter, lanczos_filter, loess_filter, gaussian_filter, boxcar_filter, lee_filter
-
+from src.gomez import VariationnalFilter
 
 class SwotTrack(object):
 
@@ -409,7 +410,22 @@ class SwotTrack(object):
         ssha = self.dset[invar].values
         sshaf = lee_filter(ssha, lx)
         self.__enrich_dataset(outvar, sshaf)
-        
+
+    def apply_var_filter(self, invar, outvar, **kwargs):
+        ''' apply the Gomez et al. filter '''
+        self.__check_var_exist(invar)
+        if outvar in self.dset.data_vars:
+            self._dset = self._dset.drop(outvar)
+        ssha = self.dset[invar].values
+        vf = VariationnalFilter(self.longitude,
+                                self.latitude,
+                                ssha,
+                                self.nadir_mask)
+        sshaf = vf.filter(**kwargs)
+        self.__enrich_dataset(outvar, sshaf)
+
+
+
         
     def to_netcdf(self, l_variables, fname):
         """ write to netcdf file """

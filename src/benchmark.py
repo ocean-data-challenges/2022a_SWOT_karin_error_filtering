@@ -418,7 +418,9 @@ class Benchmark(object):
                 seg_ssh_true = ssh_true[ii:ii+npt]
                 seg_ssh_noisy = ssh_noisy[ii:ii+npt]
                 seg_ssh_filtered = ssh_filtered[ii:ii+npt]
-                if (not np.any(np.isnan(seg_ssh_true))) and (not np.any(np.isnan(seg_ssh_noisy))) and (not np.any(np.isnan(seg_ssh_filtered))):
+               
+                if ((not np.any(np.isnan(seg_ssh_true))) and (not np.any(np.isnan(seg_ssh_noisy))) and (not np.any(np.isnan(seg_ssh_filtered)))):
+                #if not ( np.any(np.isnan(seg_ssh_true)) + np.any(np.isnan(seg_ssh_noisy)) + np.any(np.isnan(seg_ssh_filtered)) ):
                 
                     l_segments_ssh_true.append(seg_ssh_true)
                     l_segments_ssh_noisy.append(seg_ssh_noisy)
@@ -467,17 +469,18 @@ class Benchmark(object):
             swt_input.compute_geos_current('ssh_karin', 'simulated_noise_geos_current')
             swt_input.compute_relative_vorticity('simulated_noise_geos_current_x', 'simulated_noise_geos_current_y', 'simulated_noise_ksi')
             # NEED TO CHEK CONSISTENCY BETWEEN Fileterd and thruth if file not sorted
-            
+
         
             # parcours des différentes lignes along-track
             for ac_index in swt._dset.num_pixels.values:
+
                 # extraction des lon/lat/ssh
                 lon = swt._dset.longitude.values[:,ac_index]
                 lat = swt._dset.latitude.values[:,ac_index]
                 
-                ssh_true = swt_input._dset['ssh_true'].values[:,ac_index]
-                ssh_noisy = swt_input._dset['ssh_karin'].values[:,ac_index]
-                ssh_filtered = swt._dset[etuvar].values[:,ac_index]
+                ssh_true = swt_input._dset['ssh_true'].values[:, ac_index]
+                ssh_noisy = swt_input._dset['ssh_karin'].values[:, ac_index]
+                ssh_filtered = swt._dset[etuvar].values[:, ac_index]
                 
                 ug_true = swt_input._dset['true_geos_current'].values[:,ac_index]
                 ug_noisy = swt_input._dset['simulated_noise_geos_current'].values[:,ac_index]
