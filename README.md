@@ -89,6 +89,11 @@ and can be downloaded using:
 | CNN      | Geostrophic current [m.s<sup>-1</sup>]|       **0.055**  |        **0.068**  |               **0.043**   |                 **0.051**   |                           **9.4** | [demo_benchmark_CNN.ipynb](https://github.com/ocean-data-challenges/2022a_SWOT_karin_error_filtering/blob/main/notebook/demo_benchmark_CNN.ipynb) |
 | CNN      | Relative vorticity []|       0.637 |        0.881 |               0.475 |                 0.303 |                           **15.4** | [demo_benchmark_CNN.ipynb](https://github.com/ocean-data-challenges/2022a_SWOT_karin_error_filtering/blob/main/notebook/demo_benchmark_CNN.ipynb) |
 
+| | | | | | | | | |
+| GOMEZ_V2      | Sea Surface Height [m]|           **0.002** |            0.0026 |                    **0.002** |                     **0.003** |                           14.8 | not notebook available |
+| GOMEZ_V2      | Geostrophic current [m.s<sup>-1</sup>]|       0.056  |        0.065  |               0.050   |                 0.057   |                           12.5 | not notebook available  |
+| GOMEZ_V2      | Relative vorticity []|       0.65 |        0.882 |               0.504 |                 0.321 |                           26.6 | not notebook available  |
+
 with:
 
  `µ(RMSE global)`: averaged root-mean square error over the full domain
