@@ -52,7 +52,7 @@ The data needed for the DC are presented with the following directory structure:
 To start out download the dataset from the temporary data server, use:
 
 ```shell
-!wget https://ige-meom-opendap.univ-grenoble-alpes.fr/thredds/catalog/meomopendap/extract/MEOM/OCEAN_DATA_CHALLENGES/2022a_SWOT_karin_error_filtering/dc_inputs.tar.gz
+!wget https://ige-meom-opendap.univ-grenoble-alpes.fr/thredds/fileServer/meomopendap/extract/MEOM/OCEAN_DATA_CHALLENGES/2022a_SWOT_karin_error_filtering/dc_inputs.tar.gz
 
 ```
 and then uncompress the files using `tar -xvf <file>.tar.gz`. You may also use `ftp`, `rsync` or `curl`to donwload the data.
